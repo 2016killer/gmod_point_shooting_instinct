@@ -105,11 +105,34 @@ local function ARC9GunGetBulletInfo(self, ply, start, endpos, dir)
     }
 end
 
+-- 原生开火：ARC9 的 DoProjectileAttack(pos, ang, spread) 接收显式方向，直接传标记方向
+local function ARC9Shoot(self, ply, start, endpos, dir)
+    if not self.DoProjectileAttack then
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+        return
+    end
+
+    local owner = self:GetOwner() or ply
+    if not IsValid(owner) then
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+        return
+    end
+
+    local pos = self:GetShootPos()
+    local ok, err = pcall(self.DoProjectileAttack, self, pos, dir:Angle(), 0)
+
+    if not ok then
+        print('[PointShoot] ARC9 native fire failed: ' .. tostring(err))
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+    end
+end
+
 pointshoot:RegisterWhiteListBase('arc9_base', {
     GetDeployDuration = ARC9GetDeployDuration,
     GetRPM = ARC9GunGetRPM,
     PlayAttackAnim = ARC9GunPlayAttackAnim,
     GetBulletInfo = ARC9GunGetBulletInfo,
+    Shoot = ARC9Shoot,
     DecrClip = ARC9GunDecrClip,
     GetClip = ARC9GunGetClip,
 })
