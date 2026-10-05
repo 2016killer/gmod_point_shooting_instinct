@@ -31,6 +31,20 @@ function pointshoot:RegisterWhiteListBase(classbase, data, top_or_bottom)
     end
 end
 
+function pointshoot:DefaultShoot(ply, start, endpos, dir)
+    local bulletInfo = self:ps_wppGetBulletInfo(ply, start, endpos, dir)
+    if not bulletInfo then return end
+
+    bulletInfo.Src = start
+    bulletInfo.Dir = dir
+    bulletInfo.Attacker = ply
+    bulletInfo.Inflictor = self
+    bulletInfo.Damage = (bulletInfo.Damage or 1) * GetConVar('ps_damage_mul'):GetFloat()
+
+    self:FireBullets(bulletInfo)
+end
+
+
 function pointshoot:WeaponParse(wp)
     if not IsValid(wp) then 
         return false
@@ -60,6 +74,7 @@ function pointshoot:WeaponParse(wp)
         wp.ps_wppGetRPM = result.GetRPM
         wp.ps_wppPlayAttackAnim = result.PlayAttackAnim
         wp.ps_wppGetBulletInfo = result.GetBulletInfo
+        wp.ps_wppShoot = result.Shoot or pointshoot.DefaultShoot
         wp.ps_wppDecrClip = result.DecrClip
         wp.ps_wppGetClip = result.GetClip
         wp.ps_wppAnimReset = result.AnimReset
@@ -271,24 +286,7 @@ elseif SERVER then
                 if not endpos then continue end
 
                 local dir = (endpos - start):GetNormal()
-                local bulletInfo = wp:ps_wppGetBulletInfo(ply, start, endpos, dir)
-                if not bulletInfo then 
-                    wp:ps_wppDecrClip(ply)
-                    continue 
-                end
-
-                local damage = (bulletInfo.Damage or 1)
-                bulletInfo.Dir = dir
-                bulletInfo.Attacker = ply
-                bulletInfo.Inflictor = wp
-
-                bulletInfo.Src = start
-                bulletInfo.Damage = damage * GetConVar('ps_damage_mul'):GetFloat()
-                wp:FireBullets(bulletInfo)
-
-                bulletInfo.Src = endpos
-                bulletInfo.Damage = damage * GetConVar('ps_damage_penetration_mul'):GetFloat()
-                wp:FireBullets(bulletInfo)
+                wp:ps_wppShoot(ply, start, endpos, dir)
 
                 wp:ps_wppDecrClip(ply)
             end
