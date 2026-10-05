@@ -269,7 +269,10 @@ TFAPenetrate = function(ply, weapon, bullet, trace)
 end
 
 local function TFAShoot(self, ply, start, endpos, dir)
-    local info = self:ps_wppGetBulletInfo(ply, start, endpos, dir)
+    local data = pointshoot:WeaponParse(self)
+    if not data then return end
+
+    local info = data.GetBulletInfo(self, ply, start, endpos, dir)
     if not info then return end
 
     local damage = (info.Damage or 1) * GetConVar('ps_damage_mul'):GetFloat()

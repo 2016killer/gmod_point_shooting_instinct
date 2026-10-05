@@ -30,7 +30,8 @@ function SWEP:STCExecute()
 
         local originwp = LocalPlayer():GetWeapon(self.OriginWeaponClass or '')
         local deployTime = CurTime()
-        local deployDuration = originwp:ps_wppGetDeployDuration(LocalPlayer()) or 0
+        local data = pointshoot:WeaponParse(originwp)
+        local deployDuration = data and data.GetDeployDuration(originwp, LocalPlayer()) or 0
         pointshoot.Marks = table.Reverse(self.Marks)
         -- PrintTable(pointshoot.Marks)
         pointshoot:ThinkTimer('pointshoot_thinktimer_execute', 

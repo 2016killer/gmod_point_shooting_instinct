@@ -32,7 +32,10 @@ function pointshoot:RegisterWhiteListBase(classbase, data, top_or_bottom)
 end
 
 function pointshoot:DefaultShoot(ply, start, endpos, dir)
-    local bulletInfo = self:ps_wppGetBulletInfo(ply, start, endpos, dir)
+    local data = pointshoot:WeaponParse(self)
+    if not data then return end
+
+    local bulletInfo = data.GetBulletInfo(self, ply, start, endpos, dir)
     if not bulletInfo then return end
 
     bulletInfo.Src = start
@@ -46,14 +49,8 @@ end
 
 
 function pointshoot:WeaponParse(wp)
-    if not IsValid(wp) then 
-        return false
-    end
-
-    -- 已解析, 这玩意默认是函数, 如果其他人注入时误用了类型可能会出现意料之外的错误
-    -- 函数的属性会在加载关卡时被清理, 而正常能保留, 所以这里若是用了数据, 就会在闯关后错误解析
-    if wp.ps_wppGetClip then 
-        return true
+    if not IsValid(wp) then
+        return nil
     end
 
     local class = wp:GetClass()
@@ -67,21 +64,8 @@ function pointshoot:WeaponParse(wp)
             end
         end
     end
-    
-    if result then
-        wp.ps_wppGetDeployDuration = result.GetDeployDuration
-        wp.ps_wppGetRPM = result.GetRPM
-        wp.ps_wppPlayAttackAnim = result.PlayAttackAnim
-        wp.ps_wppGetBulletInfo = result.GetBulletInfo
-        wp.ps_wppShoot = result.Shoot or pointshoot.DefaultShoot
-        wp.ps_wppDecrClip = result.DecrClip
-        wp.ps_wppGetClip = result.GetClip
 
-        wp.ps_wppdata = result
-        return true
-    else
-        return false
-    end
+    return result
 end
 -- ============= 鼠标控制 =============
 if CLIENT then
@@ -189,21 +173,21 @@ if CLIENT then
         end
 
         local wp = LocalPlayer():GetActiveWeapon()
-        local parseSucc = self:WeaponParse(wp)
-        
-        if not pos or not parseSucc or wp:ps_wppGetClip(LocalPlayer()) < 1 then 
+        local data = self:WeaponParse(wp)
+
+        if not pos or not data or data.GetClip(wp, LocalPlayer()) < 1 then
             return
         end
-  
+
         if GetConVar('ps_rpm_mode'):GetBool() then
             self.NextPrimaryFire = RealTime() + 60 /
             GetConVar('ps_rpm_mul'):GetFloat() /
-            (wp:ps_wppGetRPM() or 99999)
+            (data.GetRPM(wp) or 99999)
         else
             self.NextPrimaryFire = 0
         end
 
-        wp:ps_wppPlayAttackAnim(LocalPlayer())
+        data.PlayAttackAnim(wp, LocalPlayer())
     end
     
 
@@ -261,32 +245,32 @@ elseif SERVER then
         
         local start = ply:EyePos()
         local wp = ply:GetActiveWeapon()
-        local parseSucc = self:WeaponParse(wp)
+        local data = self:WeaponParse(wp)
 
         -- 需要同步一下动画
-        if len == count then
-            -- print('fuck you')
-            wp:ps_wppPlayAttackAnim(ply)
+        if len == count and data then
+            data.PlayAttackAnim(wp, ply)
         end
-        if not parseSucc then 
+        if not data then
             for i = len, math.max(len - count + 1, 1), -1 do
                 table.remove(marks, i)
             end
         else
             wp.ps_flag = true
+            local shoot = data.Shoot or pointshoot.DefaultShoot
             for i = len, math.max(len - count + 1, 1), -1 do
                 local mark = marks[i]
                 table.remove(marks, i)
 
-                if wp:ps_wppGetClip(ply) < 1 then continue end
+                if data.GetClip(wp, ply) < 1 then continue end
 
                 local endpos = self:GetMarkPos(mark)
                 if not endpos then continue end
 
                 local dir = (endpos - start):GetNormal()
-                wp:ps_wppShoot(ply, start, endpos, dir)
+                shoot(wp, ply, start, endpos, dir)
 
-                wp:ps_wppDecrClip(ply)
+                data.DecrClip(wp, ply)
             end
             wp.ps_flag = false
         end

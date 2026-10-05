@@ -15,13 +15,17 @@ local function GetDeployDuration(self, ply)
 end
 
 local function GunGetRPM(self) 
-    return self.ps_wppdata.RPM 
+    local data = pointshoot:WeaponParse(self)
+    return data and data.RPM
 end
 
 local function GunPlayAttackAnim(self, ply)
-    if CLIENT then pointshoot:SetRecoil(-5 * math.abs(self.ps_wppdata.Recoil or 1), 0, 0) end
+    local data = pointshoot:WeaponParse(self)
+    if not data then return end
 
-    self:EmitSound(self.ps_wppdata.Sound or '')
+    if CLIENT then pointshoot:SetRecoil(-5 * math.abs(data.Recoil or 1), 0, 0) end
+
+    self:EmitSound(data.Sound or '')
 
     local vm = ply:GetViewModel()
     if not IsValid(vm) then return end
@@ -32,11 +36,14 @@ local function GunPlayAttackAnim(self, ply)
 end
 
 local function GunGetBulletInfo(self, ply, start, endpos, dir)
+    local data = pointshoot:WeaponParse(self)
+    if not data then return end
+
     return {
-        Damage = self.ps_wppdata.Damage,
-        Spread = self.ps_wppdata.Spread,
-        Force = self.ps_wppdata.Force,
-        Num = self.ps_wppdata.Num,
+        Damage = data.Damage,
+        Spread = data.Spread,
+        Force = data.Force,
+        Num = data.Num,
         Tracer = 0,
         Dir = (endpos - start):GetNormal(),
     }

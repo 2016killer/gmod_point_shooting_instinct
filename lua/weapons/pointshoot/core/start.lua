@@ -36,13 +36,13 @@ function SWEP:STCStart(wpclass, power, powercost)
         pointshoot:RemoveDrawPowerTick()
 
         local originwp = LocalPlayer():GetWeapon(wpclass)
-        local parseSucc = pointshoot:WeaponParse(originwp)
-        if not parseSucc then return end
-        
+        local data = pointshoot:WeaponParse(originwp)
+        if not data then return end
+
         self.OriginWeaponClass = wpclass
         self.Power = power
         self.PowerCost = powercost
-        self.Clip = originwp:ps_wppGetClip(LocalPlayer())
+        self.Clip = data.GetClip(originwp, LocalPlayer())
     end
     self:StartEffect()
 end
@@ -58,10 +58,10 @@ if SERVER then
             return
         end
 
-        local parseSucc = pointshoot:WeaponParse(oldwp)
+        local data = pointshoot:WeaponParse(oldwp)
         local curPower = ply:GetNW2Float('psnw_power', 1)
         local powerCost = GetConVar('ps_power_cost'):GetFloat()
-        if not parseSucc or oldwp:ps_wppGetClip(ply) < 1 or curPower <= powerCost then
+        if not data or data.GetClip(oldwp, ply) < 1 or curPower <= powerCost then
             newwp:Remove()
             return true
         end
