@@ -53,53 +53,6 @@ end
 
 -- 原生开火：构建 ArcCW 自己的 bullet 表，交给 DoPrimaryFire；强制 hitscan
 -- （NeverPhysBullet=true）以避开物理子弹里的 owner:GetCurrentCommand()
-local arcCWWeapon, arcCWOwner, arcCWDir, arcCWData, arcCWCount, arcCWShotgun, arcCWSpread
-
-local function ARCCWCallback(att, tr, dmg)
-    ArcCW:BulletCallback(att, tr, dmg, arcCWWeapon)
-end
-
-local function ARCCWFireLoop()
-    local self = arcCWWeapon
-    local owner = arcCWOwner
-    local dir = arcCWDir
-
-    local num = math.max(1, (self:GetBuff("Num") or 1) + (self:GetBuff_Add("Add_Num") or 0))
-    local sglove = math.ceil(num / 3)
-    local dmg = self:GetBuff("Damage") or 0
-    local dmgmin = self:GetBuff("DamageMin") or dmg
-    local bnum = self:GetBuff("Num") or 1
-
-    arcCWCount = num
-    arcCWShotgun = num > 1
-    arcCWSpread = ArcCW.MOAToAcc * (self:GetBuff("AccuracyMOA") or 0)
-    arcCWData = {
-        Attacker = owner,
-        Dir = dir,
-        Src = self:GetShootSrc(),
-        Spread = zerovec,
-        Damage = 0,
-        Num = 1,
-        Force = self:GetBuff("Force", true) or math.Clamp(((50 / sglove) / ((dmg + dmgmin) / (bnum * 2))) * sglove, 1, 3),
-        Distance = self:GetBuff("Distance", true) or 33300,
-        HullSize = self:GetBuff("HullSize"),
-        Tracer = self:GetBuff_Override("Override_TracerNum", self.TracerNum) or 0,
-        TracerName = self:GetBuff_Override("Override_Tracer", self.Tracer),
-        Weapon = self,
-        Callback = ARCCWCallback,
-    }
-
-    for _ = 1, num do
-        if arcCWShotgun and arcCWSpread > 0 then
-            local dv = Vector(arcCWDir)
-            arcCWWeapon:ApplyRandomSpread(dv, arcCWSpread)
-            arcCWData.Dir = dv
-        else
-            arcCWData.Dir = arcCWDir
-        end
-        arcCWWeapon:DoPrimaryFire(false, arcCWData)
-    end
-end
 
 local function ARCCWShoot(self, ply, start, endpos, dir)
     if not self.DoPrimaryFire then
@@ -113,15 +66,52 @@ local function ARCCWShoot(self, ply, start, endpos, dir)
         return
     end
 
+    local function callback(att, tr, dmg)
+        ArcCW:BulletCallback(att, tr, dmg, self)
+    end
+
+    local function fire()
+        local num = math.max(1, (self:GetBuff("Num") or 1) + (self:GetBuff_Add("Add_Num") or 0))
+        local sglove = math.ceil(num / 3)
+        local dmg = self:GetBuff("Damage") or 0
+        local dmgmin = self:GetBuff("DamageMin") or dmg
+        local bnum = self:GetBuff("Num") or 1
+        local shotgun = num > 1
+        local spread = ArcCW.MOAToAcc * (self:GetBuff("AccuracyMOA") or 0)
+
+        local data = {
+            Attacker = owner,
+            Dir = dir,
+            Src = self:GetShootSrc(),
+            Spread = zerovec,
+            Damage = 0,
+            Num = 1,
+            Force = self:GetBuff("Force", true) or math.Clamp(((50 / sglove) / ((dmg + dmgmin) / (bnum * 2))) * sglove, 1, 3),
+            Distance = self:GetBuff("Distance", true) or 33300,
+            HullSize = self:GetBuff("HullSize"),
+            Tracer = self:GetBuff_Override("Override_TracerNum", self.TracerNum) or 0,
+            TracerName = self:GetBuff_Override("Override_Tracer", self.Tracer),
+            Weapon = self,
+            Callback = callback,
+        }
+
+        for _ = 1, num do
+            if shotgun and spread > 0 then
+                local dv = Vector(dir)
+                self:ApplyRandomSpread(dv, spread)
+                data.Dir = dv
+            else
+                data.Dir = dir
+            end
+            self:DoPrimaryFire(false, data)
+        end
+    end
+
     local tbl = self:GetTable()
     local prevNever = tbl.NeverPhysBullet
 
-    arcCWWeapon = self
-    arcCWOwner = owner
-    arcCWDir = dir
-
     tbl.NeverPhysBullet = true
-    local ok, err = pcall(ARCCWFireLoop)
+    local ok, err = pcall(fire)
 
     tbl.NeverPhysBullet = prevNever
 

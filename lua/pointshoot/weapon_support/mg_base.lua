@@ -45,16 +45,6 @@ end
 -- 原生开火：MWB 的 Bullets(hitpos) 传 Vector 时精确指向该点并清零散布；
 -- 霰弹枪（NumBullets > 1）保留原生散布，走无参 Bullets，把眼角度遮成标记方向
 local playerMeta = FindMetaTable('Player')
-local mwbAimAngle = Angle(0, 0, 0)
-local mwbZeroAngle = Angle(0, 0, 0)
-
-local function MWBAimAngle()
-    return mwbAimAngle
-end
-
-local function MWBZeroAngle()
-    return mwbZeroAngle
-end
 
 local function MWBShoot(self, ply, start, endpos, dir)
     if not self.Bullets then
@@ -82,9 +72,10 @@ local function MWBShoot(self, ply, start, endpos, dir)
     local prevEye = playerMeta.EyeAngles
     local prevPunch = playerMeta.GetViewPunchAngles
 
-    mwbAimAngle = dir:Angle()
-    playerMeta.EyeAngles = MWBAimAngle
-    playerMeta.GetViewPunchAngles = MWBZeroAngle
+    local aimAngle = dir:Angle()
+    local zeroAngle = Angle(0, 0, 0)
+    playerMeta.EyeAngles = function() return aimAngle end
+    playerMeta.GetViewPunchAngles = function() return zeroAngle end
 
     local ok = pcall(self.Bullets, self)
 

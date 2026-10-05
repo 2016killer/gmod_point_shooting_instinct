@@ -46,16 +46,6 @@ local function TFAGunGetClip(self, ply)
 end
 
 -- 原生开火：临时接管方向/散布，让 TFA 自己精确打向标记
-local nativeAimDir = Vector(0, 0, 0)
-
-local function NativeAimVector()
-    return nativeAimDir
-end
-
-local function NativeZeroCone()
-    return 0, 0
-end
-
 local function TFAShoot(self, ply, start, endpos, dir)
     if not self.ShootBulletInformation then return end
 
@@ -65,10 +55,9 @@ local function TFAShoot(self, ply, start, endpos, dir)
 
     local shotgun = self.GetStatL and (self:GetStatL("Primary.NumShots") or 1) > 1
 
-    nativeAimDir = dir
-    tbl.GetAimVector = NativeAimVector
+    tbl.GetAimVector = function() return dir end
     if not shotgun then
-        tbl.CalculateConeRecoil = NativeZeroCone
+        tbl.CalculateConeRecoil = function() return 0, 0 end
     end
 
     local ok, err = pcall(self.ShootBulletInformation, self)

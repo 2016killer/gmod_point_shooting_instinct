@@ -43,22 +43,6 @@ end
 -- 原生开火：玩家方法是挂在 Player 元表上的，实体 GetTable 遮不住，得遮元表
 local playerMeta = FindMetaTable('Player')
 
-local zeroAngle = Angle(0, 0, 0)
-local cw2AimAngle = Angle(0, 0, 0)
-local cw2FakeCommand = { CommandNumber = function() return 0 end }
-
-local function CW2AimAngle()
-    return cw2AimAngle
-end
-
-local function CW2ZeroAngle()
-    return zeroAngle
-end
-
-local function CW2FakeCommand()
-    return cw2FakeCommand
-end
-
 local function CW2Shoot(self, ply, start, endpos, dir)
     if not self.FireBullet or not playerMeta then
         pointshoot.DefaultShoot(self, ply, start, endpos, dir)
@@ -80,10 +64,12 @@ local function CW2Shoot(self, ply, start, endpos, dir)
     local cone = shotgun and (self.CurCone or 0) or 0
     local clump = shotgun and (self.ClumpSpread or 0) or 0
 
-    cw2AimAngle = dir:Angle()
-    playerMeta.EyeAngles = CW2AimAngle
-    playerMeta.GetViewPunchAngles = CW2ZeroAngle
-    playerMeta.GetCurrentCommand = CW2FakeCommand
+    local aimAngle = dir:Angle()
+    local zeroAngle = Angle(0, 0, 0)
+    local fakeCommand = { CommandNumber = function() return 0 end }
+    playerMeta.EyeAngles = function() return aimAngle end
+    playerMeta.GetViewPunchAngles = function() return zeroAngle end
+    playerMeta.GetCurrentCommand = function() return fakeCommand end
 
     local ok, err = pcall(self.FireBullet, self, self.Damage or 1, cone, clump, shots)
 
