@@ -1,0 +1,13 @@
+{
+  "title": "[Hitman]Point Shooting + Instinct",
+  "type": "weapon",
+  "tags": [
+    "roleplay",
+    "fun",
+    "movie"
+  ],
+  "ignore": [
+    "img*",
+    "binary/*"
+  ]
+}
