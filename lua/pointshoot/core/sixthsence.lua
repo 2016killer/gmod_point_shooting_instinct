@@ -1,62 +1,10 @@
---[[
-    作者: 白狼
-]]
 
-local cvars = {
-    {
-        name = 'ps_sixthsense_range',
-        default = '1000',
-        call = 'GetInt',
-        widget = 'NumSlider',
-        min = 100,
-        max = 2000,
-        decimals = 0,
-    },
+local flags = { FCVAR_ARCHIVE, FCVAR_CLIENTCMD_CAN_EXECUTE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }
 
-    {
-        name = 'ps_sixthsense_cost',
-        default = '0.3',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 1,
-        decimals = 2,
-    },
-
-    {
-        name = 'ps_sixthsense_ent_limit',
-        default = '30',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 10,
-        max = 60,
-        decimals = 0,
-    },
-
-    {
-        name = 'ps_sixthsense_duration',
-        default = '1',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 5,
-        decimals = 1,
-    }
-
-}
-for _, cvar in ipairs(cvars) do pointshoot:RegisterCVar(cvar) end
-if SERVER then 
-    cvars = nil 
-elseif CLIENT then
-    hook.Add('PopulateToolMenu', 'pointshoot.menu.sixthsense', function()
-        spawnmenu.AddToolMenuOption('Options', 
-            language.GetPhrase('#pointsh.category'), 
-            'pointshoot.menu.sixthsense', 
-            language.GetPhrase('#pointsh.menu.sixthsense'), '', '', 
-            function(panel) pointshoot:CreateCVarsMenu(panel, cvars) end
-        )
-    end)
-end
+CreateConVar('ps_sixthsense_range', '1000', flags)
+CreateConVar('ps_sixthsense_cost', '0.3', flags)
+CreateConVar('ps_sixthsense_ent_limit', '30', flags)
+CreateConVar('ps_sixthsense_duration', '1', flags)
 
 if SERVER then return end
 
@@ -79,7 +27,7 @@ sixthsense.color2 = Color(255, 255, 255, 255)
 sixthsense.color3 = Color(255, 255, 255, 255)
 concommand.Add('sixthsense', function(ply)
 	local curpower = LocalPlayer():GetNW2Float('psnw_power', 1)
-	local powercost = pointshoot.CVarsCache.ps_sixthsense_cost
+	local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
 	if curpower < powercost then 
 		return 
 	end
@@ -87,10 +35,10 @@ concommand.Add('sixthsense', function(ply)
 	if not sixthsense.enable or (sixthsense.alphaRate and sixthsense.alphaRate <= 0.2) then
 		pointshoot:CallDoubleEnd('CTSDecrPower', LocalPlayer(), powercost)
 		sixthsense:Start(LocalPlayer(), 
-			pointshoot.CVarsCache.ps_sixthsense_range,
+			GetConVar('ps_sixthsense_range'):GetInt(),
 			1,
-			pointshoot.CVarsCache.ps_sixthsense_duration,
-			pointshoot.CVarsCache.ps_sixthsense_ent_limit,
+			GetConVar('ps_sixthsense_duration'):GetFloat(),
+			GetConVar('ps_sixthsense_ent_limit'):GetFloat(),
 			false
 		)
 		surface.PlaySound('dishonored/darkvision_scan.wav')
@@ -99,7 +47,7 @@ end)
 
 concommand.Add('sixthsense_old', function(ply, cmd, args)
 	local curpower = LocalPlayer():GetNW2Float('psnw_power', 1)
-	local powercost = pointshoot.CVarsCache.ps_sixthsense_cost
+	local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
 	if curpower <= powercost then 
 		return 
 	end

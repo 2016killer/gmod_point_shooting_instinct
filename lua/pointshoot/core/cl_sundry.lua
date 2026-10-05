@@ -1,54 +1,8 @@
---[[
-    作者: 白狼
-]]
-    
-local cvars = {
-    {
-        name = 'ps_key_mark',
-        default = '107',
-        call = 'GetInt',
-        widget = 'KeyBinder'
-    },
-
-    {
-        name = 'ps_key_execute',
-        default = '108',
-        call = 'GetInt',
-        widget = 'KeyBinder'
-    },
-
-    {
-        name = 'ps_key_cancel',
-        default = '12',
-        call = 'GetInt',
-        widget = 'KeyBinder'
-    },
-
-    {
-        name = 'ps_hud_change',
-        default = '1',
-        call = 'GetBool',
-        widget = 'CheckBox'
-    },
-
-    {
-        name = 'ps_hud_full',
-        default = '0',
-        call = 'GetBool',
-        widget = 'CheckBox'
-    }
-}
-
-for _, cvar in ipairs(cvars) do pointshoot:RegisterClientCVar(cvar) end
-
-hook.Add('PopulateToolMenu', 'pointshoot.menu.sundry', function()
-    spawnmenu.AddToolMenuOption('Options', 
-        language.GetPhrase('#pointsh.category'), 
-        'pointshoot.menu.sundry', 
-        language.GetPhrase('#pointsh.menu.sundry'), '', '', 
-        function(panel) pointshoot:CreateCVarsMenu(panel, cvars) end
-    )
-end)
+CreateClientConVar('ps_key_mark', '107', true, false, '')
+CreateClientConVar('ps_key_execute', '108', true, false, '')
+CreateClientConVar('ps_key_cancel', '12', true, false, '')
+CreateClientConVar('ps_hud_change', '1', true, false, '')
+CreateClientConVar('ps_hud_full', '0', true, false, '')
 
 function pointshoot:DrawPowerTick(endtime, duration)
     if CurTime() > endtime then 
@@ -83,11 +37,11 @@ hook.Add('EntityNetworkedVarChanged', 'pointshoot.power.change', function(ent, n
     if ent ~= LocalPlayer() then return end
     if name ~= 'psnw_power' then return end
 
-    if pointshoot.CVarsCache.ps_hud_change then 
+    if GetConVar('ps_hud_change'):GetBool() then 
         pointshoot:EnableDrawPowerTick(1.5) 
     end
 
-    if oldval ~= 1 and newval == 1 and pointshoot.CVarsCache.ps_hud_full then 
+    if oldval ~= 1 and newval == 1 and GetConVar('ps_hud_full'):GetBool() then 
         pointshoot:EnableDrawPowerTick(1.5) 
     end
 end)

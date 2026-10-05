@@ -191,7 +191,7 @@ function SWEP:Think()
 		return 
 	end
 
-    local markKeyDown = self:IsKeyDown(pointshoot.CVarsCache.ps_key_mark)
+    local markKeyDown = self:IsKeyDown(GetConVar('ps_key_mark'):GetInt())
     if not self.markKeyDown and markKeyDown then
         if not self.Clip or self.Clip <= 0 then 
             return
@@ -212,7 +212,7 @@ function SWEP:Think()
     self.markKeyDown = markKeyDown
 
 
-    local executeKeyDown = self:IsKeyDown(pointshoot.CVarsCache.ps_key_execute)
+    local executeKeyDown = self:IsKeyDown(GetConVar('ps_key_execute'):GetInt())
     if executeKeyDown or self:PowerThink() then
         self.LockThink = true
         self:CallDoubleEnd('CTSExecuteRequest', self.Power)
@@ -220,7 +220,7 @@ function SWEP:Think()
         return
     end
 
-    local cancelKeyDown = self:IsKeyDown(pointshoot.CVarsCache.ps_key_cancel)
+    local cancelKeyDown = self:IsKeyDown(GetConVar('ps_key_cancel'):GetInt())
     if cancelKeyDown then
         self.LockThink = true
         self:CallDoubleEnd('CTSCancel', self.Power)

@@ -58,7 +58,7 @@ if SERVER then
 
         local parseSucc = pointshoot:WeaponParse(oldwp)
         local curPower = ply:GetNW2Float('psnw_power', 1)
-        local powerCost = pointshoot.CVarsCache.ps_power_cost
+        local powerCost = GetConVar('ps_power_cost'):GetFloat()
         if not parseSucc or oldwp:ps_wppGetClip(ply) < 1 or curPower <= powerCost then
             newwp:Remove()
             return true

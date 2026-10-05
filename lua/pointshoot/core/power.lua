@@ -1,49 +1,8 @@
-local cvars = {
-    {
-        name = 'ps_buoyancy',
-        default = '0.1',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 1,
-        decimals = 1,
-        help = true
-    },
+local flags = { FCVAR_ARCHIVE, FCVAR_CLIENTCMD_CAN_EXECUTE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }
 
-    {
-        name = 'ps_headshot_reward',
-        default = '0.3',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 1,
-        decimals = 1,
-        help = true
-    },
-
-    {
-        name = 'ps_power_cost',
-        default = '0.1',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 1,
-        decimals = 1,
-    }
-}
-for _, cvar in ipairs(cvars) do pointshoot:RegisterCVar(cvar) end
-if SERVER then 
-    cvars = nil 
-elseif CLIENT then
-    hook.Add('PopulateToolMenu', 'pointshoot.menu.power', function()
-        spawnmenu.AddToolMenuOption('Options', 
-            language.GetPhrase('#pointsh.category'), 
-            'pointshoot.menu.power', 
-            language.GetPhrase('#pointsh.menu.power'), '', '', 
-            function(panel) pointshoot:CreateCVarsMenu(panel, cvars) end
-        )
-    end)
-end
+CreateConVar('ps_buoyancy', '0.1', flags)
+CreateConVar('ps_headshot_reward', '0.3', flags)
+CreateConVar('ps_power_cost', '0.1', flags)
 
 pointshoot:RegisterClientToServer('CTSDecrPower')
 
@@ -68,7 +27,7 @@ if SERVER then
         pointshoot.PowerBuoyancyTime = curtime + 1
 
         local oldPower = ply:GetNW2Float('psnw_power', 1)
-        local newPower = math.Clamp(oldPower + pointshoot.CVarsCache.ps_buoyancy, 0, 1)
+        local newPower = math.Clamp(oldPower + GetConVar('ps_buoyancy'):GetFloat(), 0, 1)
         if oldPower == newPower then return end
         ply:SetNW2Float('psnw_power', newPower)
     end)
@@ -84,7 +43,7 @@ if SERVER then
         end
         
         local oldPower = attacker:GetNW2Float('psnw_power', 1)
-        local newPower = math.Clamp(oldPower + pointshoot.CVarsCache.ps_headshot_reward, 0, 1)
+        local newPower = math.Clamp(oldPower + GetConVar('ps_headshot_reward'):GetFloat(), 0, 1)
         if oldPower == newPower then return end
 
         attacker:SetNW2Float('psnw_power', newPower)

@@ -33,7 +33,7 @@ function SWEP:STCExecute()
         pointshoot.Marks = table.Reverse(self.Marks)
         // PrintTable(pointshoot.Marks)
         pointshoot:ThinkTimer('pointshoot_thinktimer_execute', 
-            deployDuration * pointshoot.CVarsCache.ps_deploy_duration_mul, 
+            deployDuration * GetConVar('ps_deploy_duration_mul'):GetFloat(), 
             1, 
             function()
                 pointshoot:EnableAim()

@@ -1,6 +1,3 @@
---[[
-    作者: 白狼
-]]
 pointshoot = pointshoot or {}
 pointshoot.emptyfunc = function() end
 pointshoot.WhiteList = pointshoot.WhiteList or {}
@@ -8,8 +5,6 @@ pointshoot.WhiteListBase = pointshoot.WhiteListBase or {}
 pointshoot.Marks = {}
 pointshoot.Version = '1.0.0'
 
-pointshoot.CVarsCache = {}
-pointshoot.CVars = {}
 
 
 concommand.Add('pointshoot_debug_' .. (SERVER and 'sv' or 'cl'), function(ply)
@@ -224,97 +219,6 @@ function pointshoot:ThinkTimerSimple(delay, func, timemode)
 end
 
 
-function pointshoot:UpdateCVarCache(data)
-	if data ~= nil then
-		local name = data.name
-		local cvar = GetConVar(name)
-		self.CVarsCache[name] = cvar[data.call](cvar)
-		print('set cache', name, self.CVarsCache[name])
-	else
-		for _, v in ipairs(self.CVars) do
-			self:UpdateCVarCache(v)
-		end
-	end
-end
-
-if SERVER then util.AddNetworkString('PointShootUpdateCVarCache') end
-net.Receive('PointShootUpdateCVarCache', function() 
-	pointshoot:UpdateCVarCache()
-	if CLIENT then return end
-	net.Start('PointShootUpdateCVarCache')
-	net.Broadcast()
-end)
-
-function pointshoot:RegisterCVar(cvardata)
-	CreateConVar(cvardata.name, tostring(cvardata.default), { FCVAR_ARCHIVE, FCVAR_CLIENTCMD_CAN_EXECUTE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE })
-	table.insert(self.CVars, cvardata)
-    self:UpdateCVarCache(cvardata)
-end
-
-function pointshoot:RegisterClientCVar(cvardata)
-    CreateClientConVar(cvardata.name, tostring(cvardata.default), true, false, '')
-	table.insert(self.CVars, cvardata)
-    self:UpdateCVarCache(cvardata)
-end
-
-
-local function GetConVarPhrase(name)
-	-- 替换第一个下划线为点号
-	local start, ending, phrase = string.find(name, "_", 1)
-
-	if start == nil then
-		return name
-	else
-		return '#' .. name:sub(1, start - 1) .. '.' .. name:sub(ending + 1)
-	end
-end
-
-function pointshoot:CreateCVarsMenu(panel, cvars)
-	for _, v in ipairs(cvars) do
-		local name = v.name
-		local widget = v.widget or 'NumSlider'
-		local default = v.default or '0'
-		local label = v.label or GetConVarPhrase(name)
-
-		if widget == 'NumSlider' then
-			panel:NumSlider(
-				label, 
-				name, 
-				v.min or 0, v.max or 1, 
-				v.decimals or 2
-			)
-		elseif widget == 'CheckBox' then
-			panel:CheckBox(label, name)
-		elseif widget == 'TextEntry' then
-			panel:TextEntry(label, name)
-        elseif widget == 'KeyBinder' then
-			panel:KeyBinder(label, name, nil, nil)
-		end
-
-		if v.help then
-			if isstring(v.help) then
-				panel:ControlHelp(v.help)
-			else
-				panel:ControlHelp(label .. '.' .. 'help')
-			end
-		end
-	end
-
-	local updateButton = panel:Button('#save')
-	updateButton.DoClick = function()
-		net.Start('PointShootUpdateCVarCache')
-		net.SendToServer()
-	end
-
-	local defaultButton = panel:Button('#default')
-	defaultButton.DoClick = function()
-		for _, v in ipairs(cvars) do
-			RunConsoleCommand(v.name, v.default)
-		end
-	end
-
-	panel:ControlHelp(self.Version)
-end
 
 
 local function LoadLuaFiles(dirname)

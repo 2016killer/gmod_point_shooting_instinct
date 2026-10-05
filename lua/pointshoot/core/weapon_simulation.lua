@@ -1,79 +1,12 @@
---[[
-    作者: 白狼
-]]
-local cvars = {
-    {
-        name = 'ps_aim_cost',
-        default = '0.2',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 5,
-        decimals = 2,
-    },
 
-    {
-        name = 'ps_rpm_mode',
-        default = '1',
-        call = 'GetBool',
-        widget = 'CheckBox',
-        help = true,
-    },
-    
-    {
-        name = 'ps_rpm_mul',
-        default = '1',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0.1,
-        max = 5,
-        decimals = 1
-    },
+local flags = { FCVAR_ARCHIVE, FCVAR_CLIENTCMD_CAN_EXECUTE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }
 
-    {
-        name = 'ps_damage_mul',
-        default = '1',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 5,
-        decimals = 1
-    },
-
-    {
-        name = 'ps_damage_penetration_mul',
-        default = '1',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 5,
-        decimals = 1,
-    },
-
-    {
-        name = 'ps_deploy_duration_mul',
-        default = '0.8',
-        call = 'GetFloat',
-        widget = 'NumSlider',
-        min = 0,
-        max = 1,
-        decimals = 1,
-        help = true
-    }
-}
-for _, cvar in ipairs(cvars) do pointshoot:RegisterCVar(cvar) end
-if SERVER then 
-    cvars = nil 
-elseif CLIENT then
-    hook.Add('PopulateToolMenu', 'pointshoot.menu.wpsimulation', function()
-        spawnmenu.AddToolMenuOption('Options', 
-            language.GetPhrase('#pointsh.category'), 
-            'pointshoot.menu.wpsimulation', 
-            language.GetPhrase('#pointsh.menu.wpsimulation'), '', '', 
-            function(panel) pointshoot:CreateCVarsMenu(panel, cvars) end
-        )
-    end)
-end
+CreateConVar('ps_aim_cost', '0.2', flags)
+CreateConVar('ps_rpm_mode', '1', flags)
+CreateConVar('ps_rpm_mul', '1', flags)
+CreateConVar('ps_damage_mul', '1', flags)
+CreateConVar('ps_damage_penetration_mul', '1', flags)
+CreateConVar('ps_deploy_duration_mul', '0.8', flags)
 
 
 function pointshoot:RegisterWhiteList(class, data)
@@ -216,7 +149,7 @@ if CLIENT then
         end
 
         self.aiming = mark
-        self:Aim(mark, self.CVarsCache.ps_aim_cost)
+        self:Aim(mark, GetConVar('ps_aim_cost'):GetFloat())
         
 
         return true
@@ -249,9 +182,9 @@ if CLIENT then
             return
         end
   
-        if self.CVarsCache.ps_rpm_mode then
-            self.NextPrimaryFire = RealTime() + 60 / 
-            self.CVarsCache.ps_rpm_mul / 
+        if GetConVar('ps_rpm_mode'):GetBool() then
+            self.NextPrimaryFire = RealTime() + 60 /
+            GetConVar('ps_rpm_mul'):GetFloat() /
             (wp:ps_wppGetRPM() or 99999)
         else
             self.NextPrimaryFire = 0
@@ -350,11 +283,11 @@ elseif SERVER then
                 bulletInfo.Inflictor = wp
 
                 bulletInfo.Src = start
-                bulletInfo.Damage = damage * self.CVarsCache.ps_damage_mul
+                bulletInfo.Damage = damage * GetConVar('ps_damage_mul'):GetFloat()
                 wp:FireBullets(bulletInfo)
 
                 bulletInfo.Src = endpos
-                bulletInfo.Damage = damage * self.CVarsCache.ps_damage_penetration_mul
+                bulletInfo.Damage = damage * GetConVar('ps_damage_penetration_mul'):GetFloat()
                 wp:FireBullets(bulletInfo)
 
                 wp:ps_wppDecrClip(ply)
