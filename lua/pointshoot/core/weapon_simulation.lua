@@ -43,6 +43,9 @@ function pointshoot:DefaultShoot(ply, start, endpos, dir)
     bulletInfo.Attacker = ply
     bulletInfo.Inflictor = self
     bulletInfo.Damage = (bulletInfo.Damage or 1) * GetConVar('ps_damage_mul'):GetFloat()
+    -- if (bulletInfo.Tracer or 0) < 1 then
+    --     bulletInfo.Tracer = 1
+    -- end
 
     self:FireBullets(bulletInfo)
 end
