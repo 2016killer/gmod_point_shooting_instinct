@@ -17,7 +17,7 @@ end
 
 
 local function ACR9DoEject(self, index, attachment)
-    // if !IsFirstTimePredicted() then return end
+    -- if !IsFirstTimePredicted() then return end
     local processedValue = self.GetProcessedValue
 
     -- if self:GetProcessedValue("NoShellEject") then return end
@@ -35,7 +35,7 @@ local function ACR9DoEject(self, index, attachment)
 end
 
 local function ARC9GunDoEffects(self)
-    // if !IsFirstTimePredicted() then return end
+    -- if !IsFirstTimePredicted() then return end
     if self:GetProcessedValue("NoMuzzleEffect", true) then return end
 
     local muzz_qca = self:GetQCAMuzzle()
@@ -67,8 +67,8 @@ local function ARC9GunPlayAttackAnim(self, ply)
     if CLIENT then pointshoot:SetRecoil(-5 * math.abs(self.Recoil or 1), 0, 0) end
 
     self:DoShootSounds()
-    // self:DoEffects()
-    // self:DoEject()
+    -- self:DoEffects()
+    -- self:DoEject()
     ARC9GunDoEffects(self)
     ACR9DoEject(self)
     
@@ -94,7 +94,7 @@ local function ARC9GunGetBulletInfo(self, ply, start, endpos, dir)
     local isshotgun = num > 1
     local spread = self:GetProcessedValue("Spread") or 0
     spread = isvector(spread) and spread or Vector(spread, spread, 0)
-    // print(num, isshotgun, spread)
+    -- print(num, isshotgun, spread)
     
     return {
         Damage = self:GetDamageAtRange((endpos - start):Length()),

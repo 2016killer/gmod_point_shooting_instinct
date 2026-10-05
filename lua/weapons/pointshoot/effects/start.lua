@@ -52,7 +52,7 @@ end
 
 function SWEP:StartEffect(ply)
 	if SERVER then
-		pointshoot:TimeScaleFadeIn(0, 0.1)
+		pointshoot:TimeScaleFadeIn(GetConVar('ps_timescale_mark'):GetFloat(), 0.1)
 	elseif CLIENT then
 		surface.PlaySound('hitman/start.mp3')
 		self:ScreenFlash(150, 0, 0.2)

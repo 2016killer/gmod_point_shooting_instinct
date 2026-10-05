@@ -2,8 +2,8 @@ SWEP:RegisterServerToClient('STCStart')
 
 function SWEP:SetStartData(wpclass, power, powercost)
     self.OriginWeaponClass = wpclass
-    // self.Power = powercost ~= 0 and power or nil
-    // self.PowerCost = powercost ~= 0 and powercost or nil
+    -- self.Power = powercost ~= 0 and power or nil
+    -- self.PowerCost = powercost ~= 0 and powercost or nil
     self.Power = power
     self.PowerCost = powercost
 end
@@ -14,6 +14,7 @@ function SWEP:STCStart(wpclass, power, powercost)
         local owner = self:GetOwner()
         pointshoot.Marks[owner:EntIndex()] = {}
         owner.ps_buoyancy_time = CurTime() + 2
+        pointshoot:SetInvincible(owner, true)
     elseif CLIENT then
         self.Marks = {}
         pointshoot.Marks = {}

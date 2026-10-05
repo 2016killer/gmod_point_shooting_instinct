@@ -32,7 +32,7 @@ local function MWBGunGetBulletInfo(self, ply, start, endpos, dir)
     local isshotgun = (self.Bullet.NumBullets or 0) > 1
     local spread = self.Primary.Spread or 0
     spread = isvector(spread) and spread or Vector(spread, spread, 0)
-    // print(self.Bullet.NumBullets, spread)
+    -- print(self.Bullet.NumBullets, spread)
     return {
         Damage = istable(self.Bullet.Damage) and self.Bullet.Damage[1] or nil,
         Spread = isshotgun and spread or zerovec,

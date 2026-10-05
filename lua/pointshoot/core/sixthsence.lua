@@ -182,7 +182,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 
 	table.sort(weightTable, function(a, b) return a.priority < b.priority end)
 
-	// PrintTable(weightTable)
+	-- PrintTable(weightTable)
 
 	for i = 1, math.min(self.limitent, #weightTable) do
 		table.insert(self.entqueue, weightTable[i].ent)
@@ -271,7 +271,7 @@ function sixthsense:Draw()
 	render.ClearStencil()
 	render.SetStencilEnable(true)
 	render.SuppressEngineLighting(true)
-		// 全屏
+		-- 全屏
 		render.SetStencilWriteMask(1)
 		render.SetStencilTestMask(1)
 		render.SetStencilCompareFunction(STENCIL_ALWAYS)
@@ -298,7 +298,7 @@ function sixthsense:Draw()
 			end
 		cam.End2D()
 
-		// 遮罩
+		-- 遮罩
 		render.SetStencilCompareFunction(STENCIL_ALWAYS)
 		render.SetStencilPassOperation(STENCIL_KEEP)
 		render.SetStencilFailOperation(STENCIL_KEEP)

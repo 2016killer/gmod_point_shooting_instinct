@@ -5,6 +5,7 @@ function SWEP:CTSExecuteRequest(endpower)
     local owner = self:GetOwner()
 
     if SERVER and (not IsValid(owner) or not owner:IsPlayer() or not IsValid(owner:GetWeapon(self.OriginWeaponClass or ''))) then
+        pointshoot:SetInvincible(owner, false)
         pointshoot:TimeScaleFadeIn(1, nil)
     elseif SERVER then
         owner:SelectWeapon(owner:GetWeapon(self.OriginWeaponClass or ''))
@@ -20,7 +21,7 @@ function SWEP:STCExecute()
         pointshoot.Marks[owner:EntIndex()] = table.Reverse(self.Marks)
         owner.ps_buoyancy_time = CurTime() + 2
         self:ExecuteEffect()
-        // PrintTable(pointshoot.Marks[owner:EntIndex()])
+        -- PrintTable(pointshoot.Marks[owner:EntIndex()])
     elseif CLIENT and (not self.Marks or #self.Marks < 1) then
         pointshoot:DisableAim()
         RunConsoleCommand('pointshoot_remove')
@@ -31,7 +32,7 @@ function SWEP:STCExecute()
         local deployTime = CurTime()
         local deployDuration = originwp:ps_wppGetDeployDuration(LocalPlayer()) or 0
         pointshoot.Marks = table.Reverse(self.Marks)
-        // PrintTable(pointshoot.Marks)
+        -- PrintTable(pointshoot.Marks)
         pointshoot:ThinkTimer('pointshoot_thinktimer_execute', 
             deployDuration * GetConVar('ps_deploy_duration_mul'):GetFloat(), 
             1, 

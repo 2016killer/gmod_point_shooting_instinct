@@ -124,7 +124,7 @@ function pointshoot:TracePenetration(dis)
     local filter = {LocalPlayer()}
     local start = LocalPlayer():EyePos()
 
-    // local dir = LocalPlayer():GetAimVector()
+    -- local dir = LocalPlayer():GetAimVector()
     local dir = (LocalPlayer():EyeAngles() + LocalPlayer():GetViewPunchAngles()):Forward()
     local tr = util.TraceLine({
         start = start,
@@ -133,7 +133,7 @@ function pointshoot:TracePenetration(dis)
         mask = MASK_SHOT
     })
 
-    // debugoverlay.Sphere(tr.HitPos, 5, 5, Color(255, 0, 0))
+    -- debugoverlay.Sphere(tr.HitPos, 5, 5, Color(255, 0, 0))
 
     if tr.Entity:IsNPC() or tr.Entity:IsPlayer() then
         return tr
@@ -162,6 +162,7 @@ end
 -- ============= 时间控制 =============
 function pointshoot:TimeScaleFadeIn(target, duration)
 	if CLIENT then return end
+	if target < 1 and not pointshoot:TimeScaleAllowed() then return end
     timer.Remove('pointshoot_timescale')
     if duration == 0 or duration == nil then
         game.SetTimeScale(target)

@@ -41,7 +41,7 @@ end
 local function ARCCWGunGetBulletInfo(self, ply, start, endpos, dir)
     local isshotgun = self:GetIsShotgun()
     local spread = ArcCW.MOAToAcc * self:GetBuff("AccuracyMOA")
-    // print(isshotgun, spread)
+    -- print(isshotgun, spread)
     return {
         Damage = self.Damage,
         Spread = isshotgun and Vector(spread, spread, 0) or zerovec,

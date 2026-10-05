@@ -44,7 +44,7 @@ if CLIENT then
         cam.Start3D()
             for _, mark in ipairs(Marks) do
                 local pos = pointshoot:GetMarkPos(mark)
-                // print(pos)
+                -- print(pos)
                 if not pos then 
                     continue
                 end

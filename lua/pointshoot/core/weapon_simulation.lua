@@ -119,7 +119,7 @@ if CLIENT then
         end
 
         local dt = RealFrameTime()
-        punchOffset = punchOffset + (punchVel + punchAcc * 0.5 * dt) * dt//二阶泰勒
+        punchOffset = punchOffset + (punchVel + punchAcc * 0.5 * dt) * dt --二阶泰勒
         punchAcc = (-punchOffset) * 100 - 10 * punchVel
         punchVel = punchVel + punchAcc * dt	
 
@@ -252,7 +252,7 @@ elseif SERVER then
 
         -- 需要同步一下动画
         if len == count then
-            // print('fuck you')
+            -- print('fuck you')
             wp:ps_wppPlayAttackAnim(ply)
         end
         if not parseSucc then 

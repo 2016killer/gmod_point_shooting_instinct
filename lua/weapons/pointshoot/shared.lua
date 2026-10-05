@@ -43,7 +43,7 @@ function SWEP:RegisterServerToClient(funcname)
             timer.Create(timername, 0, 10, function()
                 local wp = LocalPlayer():GetWeapon('pointshoot')
                 if not IsValid(wp) then 
-                    // print(timername, 'Adjust Delay', 0.05 * game.GetTimeScale())
+                    -- print(timername, 'Adjust Delay', 0.05 * game.GetTimeScale())
                     timer.Adjust(timername, 0.05 * game.GetTimeScale())
                     return 
                 end
@@ -151,7 +151,7 @@ LoadLuaFiles('effects')
 
 
 function SWEP:Deploy()
-    // print('fuck you')
+    -- print('fuck you')
     if CLIENT then return end
     local owner = self:GetOwner()
     if not IsValid(owner) or not owner:IsPlayer() then return end
@@ -161,10 +161,11 @@ function SWEP:Deploy()
 end
 
 function SWEP:Holster()
-    // print('fuck you')
+    -- print('fuck you')
     if CLIENT then return end
     local owner = self:GetOwner()
     if not IsValid(owner) or not owner:IsPlayer() or not self.Marks or #self.Marks < 1 then
+        pointshoot:SetInvincible(owner, false)
         pointshoot:TimeScaleFadeIn(1, nil)
         self:Remove()
         return true
