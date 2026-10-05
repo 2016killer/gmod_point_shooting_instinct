@@ -1,8 +1,42 @@
 CreateClientConVar('ps_key_mark', '107', true, false, '')
 CreateClientConVar('ps_key_execute', '108', true, false, '')
 CreateClientConVar('ps_key_cancel', '12', true, false, '')
+CreateClientConVar('ps_key_pointshoot', '0', true, false, '')
+CreateClientConVar('ps_key_sixthsense', '0', true, false, '')
+CreateClientConVar('ps_key_markall', tostring(MOUSE_MIDDLE), true, false, '')
+CreateClientConVar('ps_markall_range', '1000', true, false, '')
 CreateClientConVar('ps_hud_change', '1', true, false, '')
 CreateClientConVar('ps_hud_full', '0', true, false, '')
+
+
+-- ============= 启动按键 =============
+-- 0(未绑定) 视为没按下
+local function IsBoundKeyDown(key)
+    return key ~= 0 and (input.IsKeyDown(key) or input.IsMouseDown(key))
+end
+
+local startKeyDown = false
+local senseKeyDown = false
+
+hook.Add('Think', 'pointshoot.keys', function()
+    local ply = LocalPlayer()
+    if not IsValid(ply) or not ply:Alive() then return end
+
+    local blocked = gui.IsGameUIVisible() or gui.IsConsoleVisible()
+
+    local startKey = not blocked and IsBoundKeyDown(GetConVar('ps_key_pointshoot'):GetInt())
+    if startKey and not startKeyDown and not IsValid(ply:GetWeapon('pointshoot')) then
+        RunConsoleCommand('+pointshoot')
+    end
+    startKeyDown = startKey
+
+    local senseKey = not blocked and IsBoundKeyDown(GetConVar('ps_key_sixthsense'):GetInt())
+    if senseKey and not senseKeyDown then
+        RunConsoleCommand('sixthsense')
+    end
+    senseKeyDown = senseKey
+end)
+
 
 function pointshoot:DrawPowerTick(endtime, duration)
     if CurTime() > endtime then 

@@ -183,6 +183,11 @@ function SWEP:IsKeyDown(key)
     end
 end
 
+-- 与 IsKeyDown 不同: 0(未绑定) 视为没按下
+function SWEP:IsBoundKeyDown(key)
+    return key ~= 0 and (input.IsKeyDown(key) or input.IsMouseDown(key))
+end
+
 function SWEP:Think()
 	if SERVER or self.LockThink then return end
     if gui.IsGameUIVisible() then return end
@@ -211,6 +216,18 @@ function SWEP:Think()
         end
     end
     self.markKeyDown = markKeyDown
+
+    local markAllKeyDown = self:IsBoundKeyDown(GetConVar('ps_key_markall'):GetInt())
+    if not self.markAllKeyDown and markAllKeyDown then
+        if not self.Clip or self.Clip <= 0 then
+            return
+        end
+
+        if self:MarkAllEnemies(GetConVar('ps_markall_range'):GetFloat()) then
+            return
+        end
+    end
+    self.markAllKeyDown = markAllKeyDown
 
 
     local executeKeyDown = self:IsKeyDown(GetConVar('ps_key_execute'):GetInt())

@@ -11,6 +11,9 @@ if CLIENT then
 					ps_key_mark = '107',
 					ps_key_execute = '108',
 					ps_key_cancel = '12',
+					ps_key_pointshoot = '0',
+					ps_key_sixthsense = '0',
+					ps_key_markall = tostring(MOUSE_MIDDLE),
 					ps_hud_change = '1',
 					ps_hud_full = '0',
 				}
@@ -24,6 +27,9 @@ if CLIENT then
 				panel:KeyBinder(language.GetPhrase('#ps.key_mark'), 'ps_key_mark', nil, nil)
 				panel:KeyBinder(language.GetPhrase('#ps.key_execute'), 'ps_key_execute', nil, nil)
 				panel:KeyBinder(language.GetPhrase('#ps.key_cancel'), 'ps_key_cancel', nil, nil)
+				panel:KeyBinder(language.GetPhrase('#ps.key_pointshoot'), 'ps_key_pointshoot', nil, nil)
+				panel:KeyBinder(language.GetPhrase('#ps.key_sixthsense'), 'ps_key_sixthsense', nil, nil)
+				panel:KeyBinder(language.GetPhrase('#ps.key_markall'), 'ps_key_markall', nil, nil)
 
 				panel:CheckBox(language.GetPhrase('#ps.hud_change'), 'ps_hud_change')
 				panel:CheckBox(language.GetPhrase('#ps.hud_full'), 'ps_hud_full')
