@@ -178,6 +178,13 @@ TFABuildBullet = function(ply, weapon, params)
         if weapon.CalculateFalloff then
             dmginfo:SetDamage(dmginfo:GetDamage() * weapon:CalculateFalloff(bullet.InitialPosition, trace.HitPos))
         end
+
+        local hitent = trace.Entity
+        if SERVER and IsValid(ply) and ply:IsPlayer() and IsValid(hitent) and (hitent:IsPlayer() or hitent:IsNPC() or type(hitent) == 'NextBot') then
+            net.Start('tfaHitmarker')
+            net.Send(ply)
+        end
+
         TFAPenetrate(ply, weapon, bullet, trace)
     end
 
