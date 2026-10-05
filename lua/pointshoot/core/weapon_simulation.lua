@@ -46,6 +46,12 @@ function pointshoot:DefaultShoot(ply, start, endpos, dir)
     if (bulletInfo.Tracer or 0) < 1 then
         bulletInfo.Tracer = 1
     end
+    -- 引擎的 FireBullets 会给最终伤害带上 DMG_NEVERGIB(4096), 只写 bulletInfo.DamageType 没用, 得在 bullet callback 里覆盖
+    local damageType = bulletInfo.DamageType or data.DamageType or DMG_BULLET
+    bulletInfo.DamageType = damageType
+    bulletInfo.Callback = function(_, _, dmgInfo)
+        dmgInfo:SetDamageType(damageType)
+    end
 
     self:FireBullets(bulletInfo)
 end

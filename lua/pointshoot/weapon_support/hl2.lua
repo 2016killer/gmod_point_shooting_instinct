@@ -55,6 +55,7 @@ local function GunDecrClip(self, _) self:SetClip1(math.max(0, self:Clip1() - 1))
 pointshoot:RegisterWhiteList('weapon_pistol', {
     RPM = 800,
     Damage = 10,
+    DamageType = DMG_BULLET,
     Force = 1,
     Sound = 'Weapon_Pistol.Single',
     Recoil = 0.5,
@@ -70,6 +71,7 @@ pointshoot:RegisterWhiteList('weapon_pistol', {
 pointshoot:RegisterWhiteList('weapon_357', {
     RPM = 300,
     Damage = 60,
+    DamageType = DMG_BULLET,
     Force = 25,
     Sound = 'Weapon_357.Single',
     Recoil = 2,
@@ -85,6 +87,7 @@ pointshoot:RegisterWhiteList('weapon_357', {
 pointshoot:RegisterWhiteList('weapon_ar2', {
     RPM = 600,
     Damage = 20,
+    DamageType = DMG_BULLET,
     Force = 1,
     Sound = 'Weapon_AR2.Single',
     Recoil = 1,
@@ -100,6 +103,7 @@ pointshoot:RegisterWhiteList('weapon_ar2', {
 pointshoot:RegisterWhiteList('weapon_crossbow', {
     RPM = 180,
     Damage = 150,
+    DamageType = DMG_NEVERGIB,
     Force = 50,
     Sound = 'Weapon_Crossbow.Single',
     Recoil = 5,
@@ -115,6 +119,7 @@ pointshoot:RegisterWhiteList('weapon_crossbow', {
 pointshoot:RegisterWhiteList('weapon_shotgun', {
     RPM = 280,
     Damage = 45,
+    DamageType = bit.bor(DMG_BUCKSHOT, DMG_BULLET),
     Force = 50,
     Sound = 'Weapon_Shotgun.Single',
     Spread = Vector(0.05, 0.05, 0),
@@ -132,6 +137,7 @@ pointshoot:RegisterWhiteList('weapon_shotgun', {
 pointshoot:RegisterWhiteList('weapon_smg1', {
     RPM = 1000,
     Damage = 6,
+    DamageType = DMG_BULLET,
     Force = 1,
     Sound = 'Weapon_SMG1.Single',
     Recoil = 0.5,
