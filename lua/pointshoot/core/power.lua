@@ -11,7 +11,7 @@ function pointshoot:CTSDecrPower(ply, delta)
         local oldPower = ply:GetNW2Float('psnw_power', 1)
         local newPower = math.Clamp(oldPower - delta, 0, 1)
         if oldPower == newPower then return end
-        self.PowerBuoyancyTime = CurTime() + 2
+        ply.ps_buoyancy_time = CurTime() + 2
         ply:SetNW2Float('psnw_power', newPower)
     elseif CLIENT then
         return
@@ -19,17 +19,14 @@ function pointshoot:CTSDecrPower(ply, delta)
 end
 
 if SERVER then
-    local pointshoot = pointshoot
-    pointshoot.PowerBuoyancyTime = 0
     hook.Add('PlayerPostThink', 'pointshoot.buoyancy', function(ply)
         local curtime = CurTime()
-        if curtime < pointshoot.PowerBuoyancyTime then return end
-        pointshoot.PowerBuoyancyTime = curtime + 1
+        if curtime < (ply.ps_buoyancy_time or 0) then return end
+        ply.ps_buoyancy_time = curtime + 1
 
         local oldPower = ply:GetNW2Float('psnw_power', 1)
-        local newPower = math.Clamp(oldPower + GetConVar('ps_buoyancy'):GetFloat(), 0, 1)
-        if oldPower == newPower then return end
-        ply:SetNW2Float('psnw_power', newPower)
+        if oldPower >= 1 then return end
+        ply:SetNW2Float('psnw_power', math.Clamp(oldPower + GetConVar('ps_buoyancy'):GetFloat(), 0, 1))
     end)
 
     hook.Add('ScaleNPCDamage', 'pointshoot.headshot.reward' , function(npc, hitgroup, dmginfo)
