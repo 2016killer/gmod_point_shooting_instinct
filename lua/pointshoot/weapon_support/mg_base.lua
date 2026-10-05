@@ -42,12 +42,22 @@ local function MWBGunGetBulletInfo(self, ply, start, endpos, dir)
     }
 end
 
+-- 原生开火：MWB 的 Bullets(hitpos) 传 Vector 时会朝该点射击并把散布清零
+local function MWBShoot(self, ply, start, endpos, dir)
+    if self.Bullets then
+        self:Bullets(endpos)
+    else
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+    end
+end
+
 
 pointshoot:RegisterWhiteListBase('mg_base', {
     GetDeployDuration = MWBGetDeployDuration,
     GetRPM = MWBGunGetRPM,
     PlayAttackAnim = MWBGunPlayAttackAnim,
     GetBulletInfo = MWBGunGetBulletInfo,
+    Shoot = MWBShoot,
     DecrClip = MWBGunDecrClip,
     GetClip = MWBGunGetClip,
 })
