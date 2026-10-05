@@ -40,11 +40,64 @@ local function CW2GunGetBulletInfo(self, ply, start, endpos, dir)
     }
 end
 
+-- 原生开火：玩家方法是挂在 Player 元表上的，实体 GetTable 遮不住，得遮元表
+local playerMeta = FindMetaTable('Player')
+
+local zeroAngle = Angle(0, 0, 0)
+local cw2AimAngle = Angle(0, 0, 0)
+local cw2FakeCommand = { CommandNumber = function() return 0 end }
+
+local function CW2AimAngle()
+    return cw2AimAngle
+end
+
+local function CW2ZeroAngle()
+    return zeroAngle
+end
+
+local function CW2FakeCommand()
+    return cw2FakeCommand
+end
+
+local function CW2Shoot(self, ply, start, endpos, dir)
+    if not self.FireBullet or not playerMeta then
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+        return
+    end
+
+    local owner = self.Owner or self:GetOwner() or ply
+    if not IsValid(owner) then
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+        return
+    end
+
+    local prevEye = playerMeta.EyeAngles
+    local prevPunch = playerMeta.GetViewPunchAngles
+    local prevCmd = playerMeta.GetCurrentCommand
+
+    cw2AimAngle = dir:Angle()
+    playerMeta.EyeAngles = CW2AimAngle
+    playerMeta.GetViewPunchAngles = CW2ZeroAngle
+    playerMeta.GetCurrentCommand = CW2FakeCommand
+
+    local ok, err = pcall(self.FireBullet, self, self.Damage or 1, 0, 0, self.Shots or 1)
+
+    playerMeta.EyeAngles = prevEye
+    playerMeta.GetViewPunchAngles = prevPunch
+    playerMeta.GetCurrentCommand = prevCmd
+
+    if not ok then
+        print('[PointShoot] CW2 native fire failed: ' .. tostring(err))
+        pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+    end
+end
+
 pointshoot:RegisterWhiteListBase('cw_base', {
     GetDeployDuration = CW2GetDeployDuration,
     GetRPM = CW2GunGetRPM,
     PlayAttackAnim = CW2GunPlayAttackAnim,
     GetBulletInfo = CW2GunGetBulletInfo,
+    Shoot = CW2Shoot,
     DecrClip = CW2GunDecrClip,
     GetClip = CW2GunGetClip,
 })
