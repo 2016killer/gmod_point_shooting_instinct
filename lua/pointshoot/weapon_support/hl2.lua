@@ -136,11 +136,3 @@ pointshoot:RegisterWhiteList('weapon_smg1', {
     DecrClip = GunDecrClip,
     GetClip = GunGetClip,
 })
-
-GunGetRPM = nil
-GunPlayAttackAnim = nil
-GunGetBulletInfo = nil
-GunGetClip = nil
-GunDecrClip = nil
-
-GetDeployDuration = nil

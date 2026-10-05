@@ -303,11 +303,3 @@ pointshoot:RegisterWhiteListBase('tfa_gun_base', {
     DecrClip = TFAGunDecrClip,
     GetClip = TFAGunGetClip,
 })
-
-TFAGunGetRPM = nil
-TFAGunPlayAttackAnim = nil
-TFAGunGetBulletInfo = nil
-TFAGunDecrClip = nil
-TFAGunGetClip = nil
-
-TFAGetDeployDuration = nil

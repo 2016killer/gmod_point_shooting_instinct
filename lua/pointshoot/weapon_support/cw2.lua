@@ -48,11 +48,3 @@ pointshoot:RegisterWhiteListBase('cw_base', {
     DecrClip = CW2GunDecrClip,
     GetClip = CW2GunGetClip,
 })
-
-CW2GunGetRPM = nil
-CW2GunPlayAttackAnim = nil
-CW2GunGetBulletInfo = nil
-CW2GunDecrClip = nil
-CW2GunGetClip = nil
-
-CW2GetDeployDuration = nil

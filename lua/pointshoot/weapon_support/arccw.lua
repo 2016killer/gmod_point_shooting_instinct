@@ -59,11 +59,3 @@ pointshoot:RegisterWhiteListBase('arccw_base', {
     DecrClip = ARCCWGunDecrClip,
     GetClip = ARCCWGunGetClip,
 })
-
-ARCCWGunGetRPM = nil
-ARCCWGunPlayAttackAnim = nil
-ARCCWGunGetBulletInfo = nil
-ARCCWGunDecrClip = nil
-ARCCWGunGetClip = nil
-
-ARCCWGetDeployDuration = nil

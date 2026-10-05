@@ -113,11 +113,3 @@ pointshoot:RegisterWhiteListBase('arc9_base', {
     DecrClip = ARC9GunDecrClip,
     GetClip = ARC9GunGetClip,
 })
-
-ARC9GunGetRPM = nil
-ARC9GunPlayAttackAnim = nil
-ARC9GunGetBulletInfo = nil
-ARC9GunDecrClip = nil
-ARC9GunGetClip = nil
-
-ARC9GetDeployDuration = nil

@@ -44,7 +44,6 @@ end
 
 
 pointshoot:RegisterWhiteListBase('mg_base', {
-    Modify = MWBModify,
     GetDeployDuration = MWBGetDeployDuration,
     GetRPM = MWBGunGetRPM,
     PlayAttackAnim = MWBGunPlayAttackAnim,
@@ -52,11 +51,3 @@ pointshoot:RegisterWhiteListBase('mg_base', {
     DecrClip = MWBGunDecrClip,
     GetClip = MWBGunGetClip,
 })
-
-MWBGunGetRPM = nil
-MWBGunPlayAttackAnim = nil
-MWBGunGetBulletInfo = nil
-MWBGunDecrClip = nil
-MWBGunGetClip = nil
-
-MWBGetDeployDuration = nil

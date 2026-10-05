@@ -69,7 +69,6 @@ function pointshoot:WeaponParse(wp)
     end
     
     if result then
-        if result.Modify then result.Modify(wp) end
         wp.ps_wppGetDeployDuration = result.GetDeployDuration
         wp.ps_wppGetRPM = result.GetRPM
         wp.ps_wppPlayAttackAnim = result.PlayAttackAnim
@@ -77,7 +76,6 @@ function pointshoot:WeaponParse(wp)
         wp.ps_wppShoot = result.Shoot or pointshoot.DefaultShoot
         wp.ps_wppDecrClip = result.DecrClip
         wp.ps_wppGetClip = result.GetClip
-        wp.ps_wppAnimReset = result.AnimReset
 
         wp.ps_wppdata = result
         return true
