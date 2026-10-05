@@ -19,62 +19,6 @@ local function TFAGetDeployDuration(self, ply)
     return math.Clamp(vm:SequenceDuration(seq) / rate, 0, 5)
 end
 
-local function TFAMeleeGetClip(self, ply)
-    return 1
-end
-
-local function TFAMeleeGetBulletInfo(self, ply, start, endpos, dir)
-    dir = dir or (endpos - start):GetNormal()
-
-    ply:DropWeapon(self)
-
-    local ent = ents.Create('pointshoot_melee')
-    ent:SetPos(start + dir * 100)
-    ent:SetAngles(ply:EyeAngles())
-    ent:Bind(self)
-    ent:Spawn()
-
-    local phys = ent:GetPhysicsObject()
-    if IsValid(phys) then
-        phys:SetVelocity(dir * 2000)
-    end 
-end
-
-
-pointshoot:RegisterWhiteListBase('tfa_melee_base', {
-    GetDeployDuration = TFAGetDeployDuration,
-    GetRPM = pointshoot.emptyfunc,
-    PlayAttackAnim = pointshoot.emptyfunc,
-    GetBulletInfo = TFAMeleeGetBulletInfo,
-    DecrClip = pointshoot.emptyfunc,
-    GetClip = TFAMeleeGetClip,
-})
-
-pointshoot:RegisterWhiteListBase('tfa_bash_base', {
-    GetDeployDuration = TFAGetDeployDuration,
-    GetRPM = pointshoot.emptyfunc,
-    PlayAttackAnim = pointshoot.emptyfunc,
-    GetBulletInfo = TFAMeleeGetBulletInfo,
-    DecrClip = pointshoot.emptyfunc,
-    GetClip = TFAMeleeGetClip,
-})
-
-pointshoot:RegisterWhiteListBase('tfa_sword_advanced_base', {
-    GetDeployDuration = TFAGetDeployDuration,
-    GetRPM = pointshoot.emptyfunc,
-    PlayAttackAnim = pointshoot.emptyfunc,
-    GetBulletInfo = TFAMeleeGetBulletInfo,
-    DecrClip = pointshoot.emptyfunc,
-    GetClip = TFAMeleeGetClip,
-})
-
-TFAMeleeGetRPM = nil
-TFAMeleePlayAttackAnim = nil
-TFAMeleeGetBulletInfo = nil
-TFAMeleeDecrClip = nil
-TFAMeleeGetClip = nil
-
-
 local function TFAGunGetRPM(self)
     return self.Primary.RPM
 end
