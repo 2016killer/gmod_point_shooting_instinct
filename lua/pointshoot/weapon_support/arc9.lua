@@ -118,8 +118,11 @@ local function ARC9Shoot(self, ply, start, endpos, dir)
         return
     end
 
+    local num = math.max(0, self:GetProcessedValue("Num") or 0)
+    local spread = num > 1 and (self:GetProcessedValue("Spread") or 0) or 0
+
     local pos = self:GetShootPos()
-    local ok, err = pcall(self.DoProjectileAttack, self, pos, dir:Angle(), 0)
+    local ok, err = pcall(self.DoProjectileAttack, self, pos, dir:Angle(), spread)
 
     if not ok then
         print('[PointShoot] ARC9 native fire failed: ' .. tostring(err))

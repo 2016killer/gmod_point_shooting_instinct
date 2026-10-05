@@ -42,12 +42,57 @@ local function MWBGunGetBulletInfo(self, ply, start, endpos, dir)
     }
 end
 
--- 原生开火：MWB 的 Bullets(hitpos) 传 Vector 时会朝该点射击并把散布清零
+-- 原生开火：MWB 的 Bullets(hitpos) 传 Vector 时精确指向该点并清零散布；
+-- 霰弹枪（NumBullets > 1）保留原生散布，走无参 Bullets，把眼角度遮成标记方向
+local playerMeta = FindMetaTable('Player')
+local mwbAimAngle = Angle(0, 0, 0)
+local mwbZeroAngle = Angle(0, 0, 0)
+
+local function MWBAimAngle()
+    return mwbAimAngle
+end
+
+local function MWBZeroAngle()
+    return mwbZeroAngle
+end
+
 local function MWBShoot(self, ply, start, endpos, dir)
-    if self.Bullets then
-        self:Bullets(endpos)
-    else
+    if not self.Bullets then
         pointshoot.DefaultShoot(self, ply, start, endpos, dir)
+        return
+    end
+
+    local bullets = self.Bullet
+    if self.HasFlag and self:HasFlag("UsingUnderbarrel") and self.Secondary then
+        bullets = self.Secondary.Bullet
+    end
+
+    local shotgun = bullets and (bullets.NumBullets or 1) > 1
+    if not shotgun then
+        self:Bullets(endpos)
+        return
+    end
+
+    local owner = self:GetOwner() or ply
+    if not IsValid(owner) or not playerMeta then
+        self:Bullets(endpos)
+        return
+    end
+
+    local prevEye = playerMeta.EyeAngles
+    local prevPunch = playerMeta.GetViewPunchAngles
+
+    mwbAimAngle = dir:Angle()
+    playerMeta.EyeAngles = MWBAimAngle
+    playerMeta.GetViewPunchAngles = MWBZeroAngle
+
+    local ok = pcall(self.Bullets, self)
+
+    playerMeta.EyeAngles = prevEye
+    playerMeta.GetViewPunchAngles = prevPunch
+
+    if not ok then
+        self:Bullets(endpos)
     end
 end
 

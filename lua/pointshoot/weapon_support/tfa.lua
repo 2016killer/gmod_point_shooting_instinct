@@ -63,9 +63,13 @@ local function TFAShoot(self, ply, start, endpos, dir)
     local prevAim = tbl.GetAimVector
     local prevCone = tbl.CalculateConeRecoil
 
+    local shotgun = self.GetStatL and (self:GetStatL("Primary.NumShots") or 1) > 1
+
     nativeAimDir = dir
     tbl.GetAimVector = NativeAimVector
-    tbl.CalculateConeRecoil = NativeZeroCone
+    if not shotgun then
+        tbl.CalculateConeRecoil = NativeZeroCone
+    end
 
     local ok, err = pcall(self.ShootBulletInformation, self)
 

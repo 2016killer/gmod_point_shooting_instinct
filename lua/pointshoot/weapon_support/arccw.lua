@@ -53,7 +53,7 @@ end
 
 -- 原生开火：构建 ArcCW 自己的 bullet 表，交给 DoPrimaryFire；强制 hitscan
 -- （NeverPhysBullet=true）以避开物理子弹里的 owner:GetCurrentCommand()
-local arcCWWeapon, arcCWData, arcCWCount, arcCWDir
+local arcCWWeapon, arcCWData, arcCWCount, arcCWDir, arcCWShotgun, arcCWSpread
 
 local function ARCCWCallback(att, tr, dmg)
     ArcCW:BulletCallback(att, tr, dmg, arcCWWeapon)
@@ -61,7 +61,13 @@ end
 
 local function ARCCWFireLoop()
     for _ = 1, arcCWCount do
-        arcCWData.Dir = arcCWDir
+        if arcCWShotgun and arcCWSpread > 0 then
+            local dv = Vector(arcCWDir)
+            arcCWWeapon:ApplyRandomSpread(dv, arcCWSpread)
+            arcCWData.Dir = dv
+        else
+            arcCWData.Dir = arcCWDir
+        end
         arcCWWeapon:DoPrimaryFire(false, arcCWData)
     end
 end
@@ -91,6 +97,8 @@ local function ARCCWShoot(self, ply, start, endpos, dir)
     arcCWWeapon = self
     arcCWCount = num
     arcCWDir = dir
+    arcCWShotgun = num > 1
+    arcCWSpread = ArcCW.MOAToAcc * (self:GetBuff("AccuracyMOA") or 0)
     arcCWData = {
         Attacker = owner,
         Dir = dir,

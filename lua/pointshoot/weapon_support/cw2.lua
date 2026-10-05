@@ -75,12 +75,17 @@ local function CW2Shoot(self, ply, start, endpos, dir)
     local prevPunch = playerMeta.GetViewPunchAngles
     local prevCmd = playerMeta.GetCurrentCommand
 
+    local shots = self.Shots or 1
+    local shotgun = shots > 1
+    local cone = shotgun and (self.CurCone or 0) or 0
+    local clump = shotgun and (self.ClumpSpread or 0) or 0
+
     cw2AimAngle = dir:Angle()
     playerMeta.EyeAngles = CW2AimAngle
     playerMeta.GetViewPunchAngles = CW2ZeroAngle
     playerMeta.GetCurrentCommand = CW2FakeCommand
 
-    local ok, err = pcall(self.FireBullet, self, self.Damage or 1, 0, 0, self.Shots or 1)
+    local ok, err = pcall(self.FireBullet, self, self.Damage or 1, cone, clump, shots)
 
     playerMeta.EyeAngles = prevEye
     playerMeta.GetViewPunchAngles = prevPunch
