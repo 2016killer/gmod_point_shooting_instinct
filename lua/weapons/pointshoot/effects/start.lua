@@ -1,3 +1,10 @@
+local notSkeleton = {
+	['models/eli.mdl'] = true,
+	['models/zombie/classic_torso.mdl'] = true,
+	['models/zombie/fast_torso.mdl'] = true,
+}
+
+
 local function filter(ent)
 	if ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
@@ -23,7 +30,7 @@ local function filter(ent)
 	end
 
 	if ent:IsNPC() then
-		if ent:LookupBone('ValveBiped.Bip01_Head1') then
+		if ent:LookupBone('ValveBiped.Bip01_Pelvis') and not notSkeleton[ent:GetModel()] then
 			if IsValid(ent.psss_skin) then
 				ent.psss_skin:Remove()
 			end
