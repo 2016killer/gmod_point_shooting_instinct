@@ -33,7 +33,7 @@ function SWEP:MarkAllEnemies(range)
 
     local pos = owner:GetPos()
     local targets = {}
-    for _, ent in ipairs(ents.FindInSphere(pos, range)) do
+    for _, ent in ipairs(ents.FindInCone(pos, owner:GetAimVector(), range, math.cos(math.rad(30)))) do
         if IsEnemy(owner, ent) then
             table.insert(targets, ent)
         end
