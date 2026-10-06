@@ -56,25 +56,6 @@ local function BuildSamples(ent)
     return samples
 end
 
--- 眼睛 -> 采样点打一条和子弹同掩码的射线, 命中目标才算可见
-local function GetVisibleSample(ply, ent)
-    local eye = ply:EyePos()
-
-    for _, sample in ipairs(BuildSamples(ent)) do
-        local tr = util.TraceLine({
-            start = eye,
-            endpos = sample.pos,
-            mask = MASK_SHOT,
-            filter = ply,
-        })
-
-        if tr.Entity == ent then
-            return sample
-        end
-    end
-
-    return nil
-end
 
 -- 一键标记范围内所有敌人, 返回 true 表示标记完没弹药了, 已请求执行
 function SWEP:MarkAllEnemies(range, ang)
@@ -97,13 +78,40 @@ function SWEP:MarkAllEnemies(range, ang)
 
     table.sort(targets, function(a, b) return pos:DistToSqr(a:GetPos()) < pos:DistToSqr(b:GetPos()) end)
 
+    -- filter 是"忽略名单"(返回 true 的实体不挡射线): 目标之间互相透明, 世界和道具照挡
+    -- 复制一份是因为 targets 后面还要用来遍历, 不能往里塞 owner
+    local filter = { owner }
+    for _, ent in ipairs(targets) do
+        table.insert(filter, ent)
+    end
+
+    -- 眼睛 -> 采样点, 只被世界/道具挡住的采样点算可见
+    local function GetVisibleSample(ply, ent, filter)
+        local eye = ply:EyePos()
+
+        for _, sample in ipairs(BuildSamples(ent)) do
+            local tr = util.TraceLine({
+                start = eye,
+                endpos = sample.pos,
+                mask = MASK_SHOT,
+                filter = filter,
+            })
+
+            if not tr.Hit then
+                return sample
+            end
+        end
+
+        return nil
+    end
+
     local firstMark
     for _, ent in ipairs(targets) do
         if self.Clip <= 0 then break end
 
         local mark
         if visibleOnly then
-            local sample = GetVisibleSample(owner, ent)
+            local sample = GetVisibleSample(owner, ent, filter)
             if sample then
                 mark = { sample.head, sample.bone, ent, 0 }
             end
