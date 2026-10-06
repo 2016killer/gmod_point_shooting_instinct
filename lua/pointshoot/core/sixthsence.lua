@@ -90,7 +90,7 @@ sixthsense.BlackList = {
 
 
 sixthsense.Filter = function(ent)
-	if ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
+	if not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
 	end
 
@@ -123,11 +123,7 @@ sixthsense.Filter = function(ent)
 	end
 
 	if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
-		if not ent:Alive() or ent:Health() < 1 then
-			return nil
-		else
-			return 0
-		end
+		return 0
 	end
 
 	if ent:GetMaxHealth() > 2 or scripted_ents.GetStored(class) or ent:IsWeapon() or class == 'prop_dynamic' then
@@ -257,7 +253,7 @@ function sixthsense:Draw()
 			
 			render.MaterialOverride(wireframe_mat)
 				for _, ent in ipairs(self.entqueue) do
-					if not IsValid(ent) then
+					if not IsValid(ent) or not ent:Alive() then
 						continue
 					end
 
