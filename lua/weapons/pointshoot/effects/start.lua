@@ -30,7 +30,9 @@ local function filter(ent)
 	end
 
 	if ent:IsNPC() then
-		if ent:LookupBone('ValveBiped.Bip01_Pelvis') and not notSkeleton[ent:GetModel()] then
+		if not ent:Alive() or ent:Health() < 1 then
+			return nil
+		elseif ent:LookupBone('ValveBiped.Bip01_Pelvis') and not notSkeleton[ent:GetModel()] then
 			if IsValid(ent.psss_skin) then
 				ent.psss_skin:Remove()
 			end

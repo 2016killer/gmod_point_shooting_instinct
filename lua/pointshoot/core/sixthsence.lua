@@ -122,8 +122,12 @@ sixthsense.Filter = function(ent)
 		return 0, grenade
 	end
 
-	if ent:IsNPC() then
-		return 0
+	if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
+		if not ent:Alive() or ent:Health() < 1 then
+			return nil
+		else
+			return 0
+		end
 	end
 
 	if ent:GetMaxHealth() > 2 or scripted_ents.GetStored(class) or ent:IsWeapon() or class == 'prop_dynamic' then
