@@ -63,6 +63,7 @@ if SERVER then
         local powerCost = GetConVar('ps_power_cost'):GetFloat()
         if not data or data.GetClip(oldwp, ply) < 1 or curPower <= powerCost then
             newwp:Remove()
+            ply:EmitSound('Buttons.snd40')
             return true
         end
 
