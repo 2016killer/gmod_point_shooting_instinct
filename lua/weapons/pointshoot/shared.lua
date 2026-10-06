@@ -223,7 +223,7 @@ function SWEP:Think()
             return
         end
 
-        if self:MarkAllEnemies(GetConVar('ps_markall_range'):GetFloat()) then
+        if self:MarkAllEnemies(GetConVar('ps_markall_range'):GetFloat(), GetConVar('ps_markall_ang'):GetFloat()) then
             return
         end
     end

@@ -16,6 +16,8 @@ if CLIENT then
 					ps_key_markall = tostring(MOUSE_MIDDLE),
 					ps_hud_change = '1',
 					ps_hud_full = '0',
+					ps_markall_range = '1000',
+					ps_markall_ang = '30',
 				}
 
 				local ctrl = vgui.Create('ControlPresets', panel)
@@ -30,6 +32,9 @@ if CLIENT then
 				panel:KeyBinder(language.GetPhrase('#ps.key_pointshoot'), 'ps_key_pointshoot', nil, nil)
 				panel:KeyBinder(language.GetPhrase('#ps.key_sixthsense'), 'ps_key_sixthsense', nil, nil)
 				panel:KeyBinder(language.GetPhrase('#ps.key_markall'), 'ps_key_markall', nil, nil)
+
+				panel:NumSlider(language.GetPhrase('#ps.markall_range'), 'ps_markall_range', 0, 2000, 0)
+				panel:NumSlider(language.GetPhrase('#ps.markall_ang'), 'ps_markall_ang', 0, 180, 0)
 
 				panel:CheckBox(language.GetPhrase('#ps.hud_change'), 'ps_hud_change')
 				panel:CheckBox(language.GetPhrase('#ps.hud_full'), 'ps_hud_full')

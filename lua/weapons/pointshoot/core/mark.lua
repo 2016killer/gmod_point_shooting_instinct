@@ -25,7 +25,7 @@ end
 
 
 -- 一键标记范围内所有敌人, 返回 true 表示标记完没弹药了, 已请求执行
-function SWEP:MarkAllEnemies(range)
+function SWEP:MarkAllEnemies(range, ang)
     local owner = self:GetOwner()
     if not IsValid(owner) or not self.Clip or self.Clip <= 0 then
         return false
@@ -33,7 +33,7 @@ function SWEP:MarkAllEnemies(range)
 
     local pos = owner:GetPos()
     local targets = {}
-    for _, ent in ipairs(ents.FindInCone(pos, owner:GetAimVector(), range, math.cos(math.rad(30)))) do
+    for _, ent in ipairs(ents.FindInCone(pos, owner:GetAimVector(), range, math.cos(math.rad(ang)))) do
         if IsEnemy(owner, ent) then
             table.insert(targets, ent)
         end

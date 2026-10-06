@@ -5,6 +5,7 @@ CreateClientConVar('ps_key_pointshoot', '0', true, false, '')
 CreateClientConVar('ps_key_sixthsense', '0', true, false, '')
 CreateClientConVar('ps_key_markall', tostring(MOUSE_MIDDLE), true, false, '')
 CreateClientConVar('ps_markall_range', '1000', true, false, '')
+CreateClientConVar('ps_markall_ang', '30', true, false, '')
 CreateClientConVar('ps_hud_change', '1', true, false, '')
 CreateClientConVar('ps_hud_full', '0', true, false, '')
 
