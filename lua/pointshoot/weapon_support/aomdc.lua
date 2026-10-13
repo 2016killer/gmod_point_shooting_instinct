@@ -87,7 +87,7 @@ pointshoot:RegisterWhiteList('weapons_aomdc_mp5k', {
 
 pointshoot:RegisterWhiteList('weapons_aomdc_shotgun', {
     RPM = 280,
-    Damage = 12,
+    Damage = 10,
     DamageType = bit.bor(DMG_BUCKSHOT, DMG_BULLET),
     Force = 50,
     Sound = 'aomdc/weapons/shotgun/shotgun_fire.wav',
