@@ -118,12 +118,12 @@ pointshoot:RegisterWhiteList('weapon_crossbow', {
 
 pointshoot:RegisterWhiteList('weapon_shotgun', {
     RPM = 280,
-    Damage = 45,
+    Damage = 12,
     DamageType = bit.bor(DMG_BUCKSHOT, DMG_BULLET),
     Force = 50,
     Sound = 'Weapon_Shotgun.Single',
     Spread = Vector(0.05, 0.05, 0),
-    Num = 8,
+    Num = 7,
     Recoil = 3,
 
     GetDeployDuration = GetDeployDuration,
