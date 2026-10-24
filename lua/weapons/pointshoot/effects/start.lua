@@ -6,7 +6,7 @@ local notSkeleton = {
 
 
 local function filter(ent)
-	if not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
+	if ent == LocalPlayer() or not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
 	end
 

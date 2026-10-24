@@ -86,11 +86,12 @@ sixthsense.WhiteList = {
 sixthsense.BlackList = {
 	['mg_viewmodel'] = -1,
 	['lg_ragdoll'] = -1,
+	['mg_attachment'] = -1,
 }
 
 
 sixthsense.Filter = function(ent)
-	if not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
+	if ent == LocalPlayer() or not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
 	end
 
