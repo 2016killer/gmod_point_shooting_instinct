@@ -29,6 +29,7 @@ concommand.Add('sixthsense', function(ply)
 	local curpower = LocalPlayer():GetNW2Float('psnw_power', 1)
 	local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
 	if curpower < powercost then 
+		ply:EmitSound('Buttons.snd40')
 		return 
 	end
 
