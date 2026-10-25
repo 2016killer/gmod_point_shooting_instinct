@@ -30,12 +30,12 @@ if SERVER then
     end)
 
     hook.Add('ScaleNPCDamage', 'pointshoot.headshot.reward' , function(npc, hitgroup, dmginfo)
-        if hitgroup ~= HITGROUP_HEAD or not IsValid(dmginfo) or dmginfo:GetInflictor().ps_flag then 
+        if hitgroup ~= HITGROUP_HEAD or not IsValid(dmginfo) then 
             return 
         end
 
         local attacker = dmginfo:GetAttacker()
-        if not IsValid(attacker) or not attacker:IsPlayer() then 
+        if not IsValid(attacker) or not attacker:IsPlayer() or attacker.ps_flag then 
             return 
         end
         
@@ -44,5 +44,9 @@ if SERVER then
         if oldPower == newPower then return end
 
         attacker:SetNW2Float('psnw_power', newPower)
+    end)
+
+    hook.Add('PlayerSpawn', 'pointshoot.headshot.flag.reset', function(ply, transition)
+        ply.ps_flag = nil
     end)
 end

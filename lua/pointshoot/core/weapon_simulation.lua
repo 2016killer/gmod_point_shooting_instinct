@@ -265,7 +265,7 @@ elseif SERVER then
                 table.remove(marks, i)
             end
         else
-            wp.ps_flag = true
+            ply.ps_flag = true
             local shoot = data.Shoot or pointshoot.DefaultShoot
             for i = len, math.max(len - count + 1, 1), -1 do
                 local mark = marks[i]
@@ -281,7 +281,7 @@ elseif SERVER then
 
                 data.DecrClip(wp, ply)
             end
-            wp.ps_flag = false
+            ply.ps_flag = false
         end
     end
 end
