@@ -128,7 +128,7 @@ sixthsense.Filter = function(ent)
 		return 0
 	end
 
-	if ent:GetMaxHealth() > 2 or scripted_ents.GetStored(class) or ent:IsWeapon() or class == 'prop_dynamic' then
+	if ent:GetMaxHealth() > 2 or scripted_ents.GetStored(class) or ent:IsWeapon() then
 		return 1
 	end
 
