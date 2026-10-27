@@ -11,6 +11,27 @@ concommand.Add('pointshoot_debug_' .. (SERVER and 'sv' or 'cl'), function(ply)
 	PrintTable(pointshoot)
 end)
 
+function pointshoot:IsGrenade(ent)
+	if not IsValid(ent) then
+		return false
+	end
+
+	local class = ent:GetClass()
+	return string.find(string.lower(class), 'grenade', 1, true) ~= nil
+end
+
+function pointshoot:IsMarkableEntity(ent)
+	if not IsValid(ent) then
+		return false
+	end
+
+	return ent:IsPlayer()
+		or ent:IsNPC()
+		or ent:IsNextBot()
+		or ent:GetMaxHealth() > 2
+		or self:IsGrenade(ent)
+end
+
 function pointshoot:RegisterServerToClient(funcname)
     if not string.StartWith(funcname, 'STC') then
         ErrorNoHalt(string.format('[PointShoot]: RegisterServerToClient: funcname must not start with STC, "%s"\n', funcname))
@@ -135,7 +156,7 @@ function pointshoot:TracePenetration(dis)
 
     -- debugoverlay.Sphere(tr.HitPos, 5, 5, Color(255, 0, 0))
 
-    if tr.Entity:IsNPC() or tr.Entity:IsPlayer() then
+    if pointshoot:IsMarkableEntity(tr.Entity) then
         return tr
     end
     
@@ -148,7 +169,7 @@ function pointshoot:TracePenetration(dis)
         ignoreworld = true
     })
 
-    if tr2.Entity:IsNPC() or tr2.Entity:IsPlayer() then
+    if pointshoot:IsMarkableEntity(tr2.Entity) then
         return tr2
     elseif IsValid(tr.Entity) then
         return tr

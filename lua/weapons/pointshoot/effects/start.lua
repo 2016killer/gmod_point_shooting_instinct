@@ -10,9 +10,7 @@ local function filter(ent)
 		return nil
 	end
 
-	local class = ent:GetClass()
-
-	if class == 'npc_grenade_frag' then
+	if pointshoot:IsGrenade(ent) then
 		if IsValid(ent.psss_skin) then
 			ent.psss_skin:Remove()
 		end
