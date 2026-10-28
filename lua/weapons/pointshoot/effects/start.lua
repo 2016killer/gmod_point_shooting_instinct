@@ -36,7 +36,8 @@ local function filter(ent)
 			local skeleton = ClientsideModel('models/player/skeleton.mdl', RENDERGROUP_OTHER)
 			skeleton:SetParent(ent)
 			skeleton:AddEffects(EF_BONEMERGE)
-			skeleton:SetNoDraw(true)
+			skeleton:SetRenderMode(RENDERMODE_TRANSCOLOR)
+			skeleton:SetColor(Color(0, 0, 0, 0)) 
 
 			ent.psss_skin = skeleton
 

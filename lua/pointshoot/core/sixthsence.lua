@@ -15,13 +15,6 @@ concommand.Add('sixthsense_debug', function()
 	PrintTable(sixthsense)
 end)
 
-local sixthsense_rt = GetRenderTarget('sixthsense_rt',  ScrW(), ScrH())
-local sixthsense_mat = CreateMaterial('sixthsense_mat', 'UnLitGeneric', {
-	['$basetexture'] = sixthsense_rt:GetName(),
-	['$translucent'] = 1,
-	['$vertexcolor'] = 1,
-	['$alpha'] = 1
-})
 sixthsense.color1 = Color(0, 0, 0, 100)
 sixthsense.color2 = Color(255, 255, 255, 255)
 sixthsense.color3 = Color(255, 255, 255, 255)
@@ -239,36 +232,12 @@ end
 hook.Add('Think', 'sixthsense', function() sixthsense:Think() end)
 
 local white = Color(255, 255, 255, 255)
-local wireframe_mat = Material('models/wireframe')
 local vol_light001_mat = Material('Models/effects/vol_light001')
 function sixthsense:Draw()
 	if not self.enable then
 		return 
 	end
 	local plypos = LocalPlayer():GetPos()
-	local curRangeSqr = self.curRange * self.curRange
-
-	local len = #self.entqueue
-	if len > 0 then
-		render.PushRenderTarget(sixthsense_rt)
-			render.Clear(0, 0, 0, 0, true, true)
-			
-			render.MaterialOverride(wireframe_mat)
-				for _, ent in ipairs(self.entqueue) do
-					if not IsValid(ent) or not ent:Alive() then
-						continue
-					end
-
-					if plypos:DistToSqr(ent:GetPos()) > curRangeSqr + 40000 then
-						continue
-					end
-
-					ent:DrawModel()
-				end
-			render.MaterialOverride()
-
-		render.PopRenderTarget()
-	end
 
 	render.ClearStencil()
 	render.SetStencilEnable(true)
@@ -292,12 +261,6 @@ function sixthsense:Draw()
 		cam.Start2D()
 			surface.SetDrawColor(self.color1.r, self.color1.g, self.color1.b, self.color1.a * self.alphaRate)
 			surface.DrawRect(0, 0, ScrW(), ScrH())
-			if len > 0 then
-				surface.SetDrawColor(self.color3.r, self.color3.g, self.color3.b, 255)
-				sixthsense_mat:SetFloat('$alpha', self.alphaRate)
-				surface.SetMaterial(sixthsense_mat)
-				surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
-			end
 		cam.End2D()
 
 		-- 遮罩
@@ -323,6 +286,33 @@ function sixthsense:Draw()
 	render.SuppressEngineLighting(false)
 end
 
+local halo_entities = {}
+function sixthsense:DrawHalos()
+	if not self.enable then
+		return
+	end
+
+	local plypos = LocalPlayer():GetPos()
+	local maxDistSqr = self.curRange * self.curRange + 40000
+
+	for i = #halo_entities, 1, -1 do
+		halo_entities[i] = nil
+	end
+
+	for _, ent in ipairs(self.entqueue) do
+		if IsValid(ent) and ent:Alive() and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
+			halo_entities[#halo_entities + 1] = ent
+			print(666, ent)
+		end
+	end
+
+	if #halo_entities > 0 then
+		local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
+		local color = self.color3
+		halo.Add(halo_entities, Color(color.r * alpha, color.g * alpha, color.b * alpha), 1, 1, 1, true, true)
+	end
+end
+
 hook.Add('PostDrawOpaqueRenderables', 'sixthsense', function() 
 	local succ, err = pcall(sixthsense.Draw, sixthsense)
 	if not succ then
@@ -330,5 +320,12 @@ hook.Add('PostDrawOpaqueRenderables', 'sixthsense', function()
 		render.SuppressEngineLighting(false)
 		render.SetStencilEnable(false)
 		render.MaterialOverride(nil)
+	end
+end)
+
+hook.Add('PreDrawHalos', 'sixthsense.halos', function()
+	local succ, err = pcall(sixthsense.DrawHalos, sixthsense)
+	if not succ then
+		print(err)
 	end
 end)
