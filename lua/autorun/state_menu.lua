@@ -29,6 +29,8 @@ if CLIENT then
 
 				panel:CheckBox(language.GetPhrase('#ps.timescale_mp_disable'), 'ps_timescale_mp_disable')
 				panel:ControlHelp(language.GetPhrase('#ps.timescale_mp_disable.help'))
+
+				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
 		)
 	end)

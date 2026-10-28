@@ -40,6 +40,8 @@ if CLIENT then
 
 				panel:CheckBox(language.GetPhrase('#ps.hud_change'), 'ps_hud_change')
 				panel:CheckBox(language.GetPhrase('#ps.hud_full'), 'ps_hud_full')
+
+				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
 		)
 	end)

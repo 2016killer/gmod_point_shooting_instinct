@@ -24,6 +24,8 @@ if CLIENT then
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_cost'), 'ps_sixthsense_cost', 0, 1, 2)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit'), 'ps_sixthsense_ent_limit', 10, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_duration'), 'ps_sixthsense_duration', 0, 5, 1)
+
+				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
 		)
 	end)

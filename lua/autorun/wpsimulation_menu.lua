@@ -33,6 +33,8 @@ if CLIENT then
 
 				panel:NumSlider(language.GetPhrase('#ps.deploy_duration_mul'), 'ps_deploy_duration_mul', 0, 1, 1)
 				panel:ControlHelp(language.GetPhrase('#ps.deploy_duration_mul.help'))
+
+				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
 		)
 	end)

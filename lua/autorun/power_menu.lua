@@ -26,6 +26,8 @@ if CLIENT then
 				panel:ControlHelp(language.GetPhrase('#ps.headshot_reward.help'))
 
 				panel:NumSlider(language.GetPhrase('#ps.power_cost'), 'ps_power_cost', 0, 1, 1)
+
+				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
 		)
 	end)
