@@ -280,6 +280,7 @@ elseif SERVER then
 
                 if data.GetClip(wp, ply) < 1 then continue end
 
+                if not self:IsMarkValid(mark) then continue end
                 local endpos = self:GetMarkPos(mark)
                 if not endpos then continue end
 
