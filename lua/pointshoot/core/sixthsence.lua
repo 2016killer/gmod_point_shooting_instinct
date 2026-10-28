@@ -302,7 +302,6 @@ function sixthsense:DrawHalos()
 	for _, ent in ipairs(self.entqueue) do
 		if IsValid(ent) and ent:Alive() and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
 			halo_entities[#halo_entities + 1] = ent
-			print(666, ent)
 		end
 	end
 
