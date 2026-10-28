@@ -82,27 +82,6 @@ if CLIENT then
     local duration = 0
     local Timer = 0
 
-    function pointshoot:IsMarkValid(mark)
-        if not istable(mark) then
-            return false
-        end
-
-        local ent = mark[3]
-        if not ent then
-            return true
-        end
-
-        if not IsValid(ent) then
-            return false
-        end
-
-        if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
-            return ent:Alive()
-        end
-
-        return true
-    end
-
     function pointshoot:InputMouseApply(cmd, x, y, ang)
         if not target then 
             return 

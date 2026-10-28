@@ -109,6 +109,27 @@ function pointshoot:GetMarkPos(mark)
     end
 end
 
+function pointshoot:IsMarkValid(mark)
+    if not istable(mark) then
+        return false
+    end
+
+    local ent = mark[3]
+    if not ent then
+        return true
+    end
+
+    if not IsValid(ent) then
+        return false
+    end
+
+    if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
+        return ent:Alive()
+    end
+
+    return true
+end
+
 function pointshoot:GetMarkType(mark) return mark[1] end
 function pointshoot:GetMarkSize(mark) return mark[4] end
 function pointshoot:SetMarkSize(mark, size) mark[4] = size end
