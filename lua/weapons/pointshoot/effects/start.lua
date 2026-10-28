@@ -6,7 +6,7 @@ local notSkeleton = {
 
 
 local function filter(ent)
-	if ent == LocalPlayer() or not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
+	if ent == LocalPlayer() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
 	end
 
@@ -28,6 +28,10 @@ local function filter(ent)
 	end
 
 	if ent:IsNPC() then
+		if not ent:Alive() then
+			return nil
+		end
+
 		if ent:LookupBone('ValveBiped.Bip01_Pelvis') and not notSkeleton[ent:GetModel()] then
 			if IsValid(ent.psss_skin) then
 				ent.psss_skin:Remove()

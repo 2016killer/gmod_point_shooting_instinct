@@ -85,7 +85,7 @@ sixthsense.BlackList = {
 
 
 sixthsense.Filter = function(ent)
-	if ent == LocalPlayer() or not ent:Alive() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
+	if ent == LocalPlayer() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
 	end
 
@@ -118,6 +118,10 @@ sixthsense.Filter = function(ent)
 	end
 
 	if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
+		if not ent:Alive() then
+			return nil
+		end
+
 		return 0
 	end
 
@@ -300,7 +304,13 @@ function sixthsense:DrawHalos()
 	end
 
 	for _, ent in ipairs(self.entqueue) do
-		if IsValid(ent) and ent:Alive() and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
+		if IsValid(ent) and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
+			if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
+				if not ent:Alive() then
+					continue
+				end
+			end
+
 			halo_entities[#halo_entities + 1] = ent
 		end
 	end
