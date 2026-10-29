@@ -5,6 +5,7 @@ CreateConVar('ps_sixthsense_range', '1000', flags)
 CreateConVar('ps_sixthsense_cost', '0.3', flags)
 CreateConVar('ps_sixthsense_ent_limit', '30', flags)
 CreateConVar('ps_sixthsense_duration', '1', flags)
+CreateConVar('ps_sixthsense_expand_time', '1', flags)
 
 if SERVER then return end
 
@@ -30,7 +31,7 @@ concommand.Add('sixthsense', function(ply)
 		pointshoot:CallDoubleEnd('CTSDecrPower', LocalPlayer(), powercost)
 		sixthsense:Start(LocalPlayer(), 
 			GetConVar('ps_sixthsense_range'):GetInt(),
-			1,
+			GetConVar('ps_sixthsense_expand_time'):GetFloat(),
 			GetConVar('ps_sixthsense_duration'):GetFloat(),
 			GetConVar('ps_sixthsense_ent_limit'):GetFloat(),
 			false
