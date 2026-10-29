@@ -290,7 +290,8 @@ function sixthsense:Draw()
 	render.SuppressEngineLighting(false)
 end
 
-local halo_entities = {}
+local npc_halo_entities = {}
+local other_halo_entities = {}
 function sixthsense:DrawHalos()
 	if not self.enable then
 		return
@@ -299,8 +300,11 @@ function sixthsense:DrawHalos()
 	local plypos = LocalPlayer():GetPos()
 	local maxDistSqr = self.curRange * self.curRange + 40000
 
-	for i = #halo_entities, 1, -1 do
-		halo_entities[i] = nil
+	for i = #npc_halo_entities, 1, -1 do
+		npc_halo_entities[i] = nil
+	end
+	for i = #other_halo_entities, 1, -1 do
+		other_halo_entities[i] = nil
 	end
 
 	for _, ent in ipairs(self.entqueue) do
@@ -311,14 +315,22 @@ function sixthsense:DrawHalos()
 				end
 			end
 
-			halo_entities[#halo_entities + 1] = ent
+			if ent:IsNPC() then
+				npc_halo_entities[#npc_halo_entities + 1] = ent
+			else
+				other_halo_entities[#other_halo_entities + 1] = ent
+			end
 		end
 	end
 
-	if #halo_entities > 0 then
-		local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
-		local color = self.color3
-		halo.Add(halo_entities, Color(color.r * alpha, color.g * alpha, color.b * alpha), 1, 1, 1, true, true)
+	local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
+	local color = self.color3
+	local haloColor = Color(color.r * alpha, color.g * alpha, color.b * alpha)
+	if #npc_halo_entities > 0 then
+		halo.Add(npc_halo_entities, haloColor, 1, 1, 1, true, true)
+	end
+	if #other_halo_entities > 0 then
+		halo.Add(other_halo_entities, haloColor, 1, 1, 1, true, true)
 	end
 end
 
