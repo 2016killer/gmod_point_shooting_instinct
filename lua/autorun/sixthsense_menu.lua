@@ -83,11 +83,11 @@ if CLIENT then
 					local cvarName = option.cvar
 					panel:ControlHelp(language.GetPhrase(option.label))
 
-					local cube = vgui.Create('DColorCube', panel)
-					cube:SetTall(100)
-					cube:SetDefaultColor(Color(255, 255, 255, 255))
-					cube:SetColor(sixthsense.ParseColor(GetConVar(cvarName):GetString()))
-					cube.OnUserChanged = function(_, color)
+					local palette = vgui.Create('DColorPalette', panel)
+					palette:SetTall(75)
+					palette:SetButtonSize(16)
+					palette:Reset()
+					palette.DoClick = function(_, color)
 						GetConVar(cvarName):SetString(string.format(
 							'%d,%d,%d',
 							math.Round(color.r),
@@ -95,7 +95,7 @@ if CLIENT then
 							math.Round(color.b)
 						))
 					end
-					panel:AddPanel(cube)
+					panel:AddPanel(palette)
 				end
 
 				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
