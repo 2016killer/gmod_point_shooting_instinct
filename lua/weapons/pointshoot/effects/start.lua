@@ -18,7 +18,7 @@ local function filter(ent)
 		return 'grenades'
 	end
 
-	if ent:IsNPC() then
+	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
 		if not ent:Alive() then
 			return nil
 		end
@@ -58,7 +58,7 @@ function SWEP:StartEffect(ply)
 		surface.PlaySound('hitman/start.mp3')
 		self:ScreenFlash(150, 0, 0.2)
 
-		local succ, err = pcall(sixthsense.Start, sixthsense, LocalPlayer(), 500, 0.1, 0.5, nil, false, filter)
+		local succ, err = pcall(sixthsense.Start, sixthsense, LocalPlayer(), 1000, 0.2, 0.5, nil, false, filter)
 		if not succ then
 			print('[PointShooting]: sixthsense.Start failed:', err)
 		end
