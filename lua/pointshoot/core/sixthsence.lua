@@ -172,6 +172,8 @@ sixthsense.Filter = function(ent)
 	if ent == LocalPlayer() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
 	end
+	-- print(ent, ent:GetClass())
+	-- debugoverlay.Text( ent:GetPos(), ent:GetClass(), 1, false )
 
 	local class = ent:GetClass()
 
