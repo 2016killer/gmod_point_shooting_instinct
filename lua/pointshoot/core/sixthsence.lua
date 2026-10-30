@@ -196,7 +196,6 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 	local entities = ents.FindInSphere(pos, range)
 	
 	local filter = filterOverride or self.Filter
-	local rangeSqr = range * range
 	local weightTable = {}
 	for i, ent in ipairs(entities) do 
 		if not IsValid(ent) then
@@ -214,12 +213,19 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 			weightTable, 
 			{
 				ent = IsValid(entOverride) and entOverride or ent, 
-				priority = (ent:GetPos() - pos):LengthSqr() / rangeSqr + priority
+				priority = priority,
+				distanceSqr = (ent:GetPos() - pos):LengthSqr()
 			}
 		)
 	end
 
-	table.sort(weightTable, function(a, b) return a.priority < b.priority end)
+	table.sort(weightTable, function(a, b)
+		if a.priority == b.priority then
+			return a.distanceSqr < b.distanceSqr
+		end
+
+		return a.priority < b.priority
+	end)
 
 	-- PrintTable(weightTable)
 
