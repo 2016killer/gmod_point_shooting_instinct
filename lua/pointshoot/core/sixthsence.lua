@@ -22,6 +22,14 @@ CreateConVar('ps_sixthsense_scan_scripted', '1', flags)
 
 if SERVER then return end
 
+CreateClientConVar('ps_sixthsense_color_actors', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_grenades', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_vehicles', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_breakables', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_weapons', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_scripted', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_other', '255,255,255', true, false, '')
+
 local scanPlayers = GetConVar('ps_sixthsense_scan_players')
 local scanNPCs = GetConVar('ps_sixthsense_scan_npcs')
 local scanGrenades = GetConVar('ps_sixthsense_scan_grenades')
@@ -40,9 +48,33 @@ local groupLimitCVars = {
 	other = GetConVar('ps_sixthsense_ent_limit_other'),
 }
 
+local groupColorCVars = {
+	actors = GetConVar('ps_sixthsense_color_actors'),
+	grenades = GetConVar('ps_sixthsense_color_grenades'),
+	vehicles = GetConVar('ps_sixthsense_color_vehicles'),
+	breakables = GetConVar('ps_sixthsense_color_breakables'),
+	weapons = GetConVar('ps_sixthsense_color_weapons'),
+	scripted = GetConVar('ps_sixthsense_color_scripted'),
+	other = GetConVar('ps_sixthsense_color_other'),
+}
+
 
 sixthsense = sixthsense or {}
 local sixthsense = sixthsense
+local function ParseColor(value)
+	local r, g, b = string.match(value or '', '^%s*(%d+)[%s,]+(%d+)[%s,]+(%d+)%s*$')
+	if not r then
+		return Color(255, 255, 255, 255)
+	end
+
+	return Color(
+		math.Clamp(tonumber(r), 0, 255),
+		math.Clamp(tonumber(g), 0, 255),
+		math.Clamp(tonumber(b), 0, 255)
+	)
+end
+sixthsense.ParseColor = ParseColor
+
 concommand.Add('sixthsense_debug', function()
 	PrintTable(sixthsense)
 end)
@@ -398,11 +430,11 @@ function sixthsense:DrawHalos()
 	end
 
 	local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
-	local color = self.color3
-	local haloColor = Color(color.r * alpha, color.g * alpha, color.b * alpha)
 	for _, group in ipairs(haloGroupOrder) do
 		local entities = haloGroups[group]
 		if #entities > 0 then
+			local color = ParseColor(groupColorCVars[group]:GetString())
+			local haloColor = Color(color.r * alpha, color.g * alpha, color.b * alpha)
 			halo.Add(entities, haloColor, 1, 1, 1, true, true)
 		end
 	end

@@ -17,6 +17,13 @@ if CLIENT then
 					ps_sixthsense_ent_limit_weapons = '30',
 					ps_sixthsense_ent_limit_scripted = '30',
 					ps_sixthsense_ent_limit_other = '30',
+					ps_sixthsense_color_actors = '255,255,255',
+					ps_sixthsense_color_grenades = '255,255,255',
+					ps_sixthsense_color_vehicles = '255,255,255',
+					ps_sixthsense_color_breakables = '255,255,255',
+					ps_sixthsense_color_weapons = '255,255,255',
+					ps_sixthsense_color_scripted = '255,255,255',
+					ps_sixthsense_color_other = '255,255,255',
 					ps_sixthsense_duration = '1',
 					ps_sixthsense_expand_time = '1',
 					ps_sixthsense_scan_players = '1',
@@ -56,6 +63,35 @@ if CLIENT then
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_weapons'), 'ps_sixthsense_ent_limit_weapons', 0, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_scripted'), 'ps_sixthsense_ent_limit_scripted', 0, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_other'), 'ps_sixthsense_ent_limit_other', 0, 60, 0)
+
+				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.color_options'))
+				local colorOptions = {
+					{ label = '#ps.sixthsense_color_actors', cvar = 'ps_sixthsense_color_actors' },
+					{ label = '#ps.sixthsense_color_grenades', cvar = 'ps_sixthsense_color_grenades' },
+					{ label = '#ps.sixthsense_color_vehicles', cvar = 'ps_sixthsense_color_vehicles' },
+					{ label = '#ps.sixthsense_color_breakables', cvar = 'ps_sixthsense_color_breakables' },
+					{ label = '#ps.sixthsense_color_weapons', cvar = 'ps_sixthsense_color_weapons' },
+					{ label = '#ps.sixthsense_color_scripted', cvar = 'ps_sixthsense_color_scripted' },
+					{ label = '#ps.sixthsense_color_other', cvar = 'ps_sixthsense_color_other' },
+				}
+				for _, option in ipairs(colorOptions) do
+					local cvarName = option.cvar
+					panel:ControlHelp(language.GetPhrase(option.label))
+
+					local cube = vgui.Create('DColorCube', panel)
+					cube:SetTall(100)
+					cube:SetDefaultColor(Color(255, 255, 255, 255))
+					cube:SetColor(sixthsense.ParseColor(GetConVar(cvarName):GetString()))
+					cube.OnUserChanged = function(_, color)
+						GetConVar(cvarName):SetString(string.format(
+							'%d,%d,%d',
+							math.Round(color.r),
+							math.Round(color.g),
+							math.Round(color.b)
+						))
+					end
+					panel:AddPanel(cube)
+				end
 
 				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
