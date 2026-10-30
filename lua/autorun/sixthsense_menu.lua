@@ -8,8 +8,8 @@ if CLIENT then
 			language.GetPhrase('#pointsh.menu.sixthsense'), '', '', 
 			function(panel)
 				local default = {
-					ps_sixthsense_range = '1000',
-					ps_sixthsense_cost = '0.3',
+					ps_sixthsense_range = '2000',
+					ps_sixthsense_cost = '0.1',
 					ps_sixthsense_ent_limit_actors = '30',
 					ps_sixthsense_ent_limit_grenades = '30',
 					ps_sixthsense_ent_limit_vehicles = '30',

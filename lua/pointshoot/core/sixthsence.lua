@@ -1,8 +1,8 @@
 
 local flags = { FCVAR_ARCHIVE, FCVAR_CLIENTCMD_CAN_EXECUTE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }
 
-CreateConVar('ps_sixthsense_range', '1000', flags)
-CreateConVar('ps_sixthsense_cost', '0.3', flags)
+CreateConVar('ps_sixthsense_range', '2000', flags)
+CreateConVar('ps_sixthsense_cost', '0.1', flags)
 CreateConVar('ps_sixthsense_ent_limit_actors', '30', flags)
 CreateConVar('ps_sixthsense_ent_limit_grenades', '30', flags)
 CreateConVar('ps_sixthsense_ent_limit_vehicles', '30', flags)
