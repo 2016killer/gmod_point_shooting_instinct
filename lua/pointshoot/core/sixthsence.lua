@@ -22,6 +22,14 @@ CreateConVar('ps_sixthsense_scan_scripted', '1', flags)
 
 if SERVER then return end
 
+local function IsDev()
+	if GetConVar('developer') and GetConVar('developer'):GetBool() then
+		return true
+	end
+
+	return false
+end
+
 CreateClientConVar('ps_sixthsense_cooldown', '1', true, false, '')
 CreateClientConVar('ps_sixthsense_color_dangerous', '255,255,255', true, false, '')
 CreateClientConVar('ps_sixthsense_color_scripted', '255,255,255', true, false, '')
@@ -100,6 +108,12 @@ concommand.Add('sixthsense', function(ply)
 	sixthsense.nextUse = now + math.max(cooldownCVar:GetFloat(), 0)
 	surface.PlaySound('dishonored/darkvision_scan.wav')
 end)
+
+concommand.Add('sixthsense_debug_showentclass', function(ply)
+	-- TODO: 用findSphere获取2000单位范围实体，然后用
+	-- debugoverlay.Text(origin, text, lifetime, false)
+end)
+
 
 local sixthsenseTimer = 'pointshoot.sixthsense.hold'
 concommand.Add('+sixthsense', function()
@@ -329,6 +343,9 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverr
 
 	table.insert(self.snapshots, snapshot)
 	hook.Run('SixthSenseStart')
+	if IsDev() then
+		PrintTable(snapshot)
+	end
 	return snapshot
 end
 
