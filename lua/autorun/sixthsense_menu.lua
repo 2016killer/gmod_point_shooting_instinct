@@ -10,7 +10,13 @@ if CLIENT then
 				local default = {
 					ps_sixthsense_range = '1000',
 					ps_sixthsense_cost = '0.3',
-					ps_sixthsense_ent_limit = '30',
+					ps_sixthsense_ent_limit_actors = '30',
+					ps_sixthsense_ent_limit_grenades = '30',
+					ps_sixthsense_ent_limit_vehicles = '30',
+					ps_sixthsense_ent_limit_breakables = '30',
+					ps_sixthsense_ent_limit_weapons = '30',
+					ps_sixthsense_ent_limit_scripted = '30',
+					ps_sixthsense_ent_limit_other = '30',
 					ps_sixthsense_duration = '1',
 					ps_sixthsense_expand_time = '1',
 					ps_sixthsense_scan_players = '1',
@@ -28,9 +34,15 @@ if CLIENT then
 				for k, v in pairs(default) do ctrl:AddConVar(k) end
 				panel:AddPanel(ctrl)
 
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_range'), 'ps_sixthsense_range', 100, 2000, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_range'), 'ps_sixthsense_range', 100, 5000, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_cost'), 'ps_sixthsense_cost', 0, 1, 2)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit'), 'ps_sixthsense_ent_limit', 10, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_actors'), 'ps_sixthsense_ent_limit_actors', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_grenades'), 'ps_sixthsense_ent_limit_grenades', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_vehicles'), 'ps_sixthsense_ent_limit_vehicles', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_breakables'), 'ps_sixthsense_ent_limit_breakables', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_weapons'), 'ps_sixthsense_ent_limit_weapons', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_scripted'), 'ps_sixthsense_ent_limit_scripted', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_other'), 'ps_sixthsense_ent_limit_other', 0, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_duration'), 'ps_sixthsense_duration', 0, 5, 1)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_expand_time'), 'ps_sixthsense_expand_time', 0.1, 5, 2)
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_players'), 'ps_sixthsense_scan_players')

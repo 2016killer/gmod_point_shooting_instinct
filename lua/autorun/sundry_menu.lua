@@ -34,7 +34,7 @@ if CLIENT then
 				panel:KeyBinder(language.GetPhrase('#ps.key_sixthsense'), 'ps_key_sixthsense', nil, nil)
 				panel:KeyBinder(language.GetPhrase('#ps.key_markall'), 'ps_key_markall', nil, nil)
 
-				panel:NumSlider(language.GetPhrase('#ps.markall_range'), 'ps_markall_range', 0, 2000, 0)
+				panel:NumSlider(language.GetPhrase('#ps.markall_range'), 'ps_markall_range', 0, 5000, 0)
 				panel:NumSlider(language.GetPhrase('#ps.markall_ang'), 'ps_markall_ang', 0, 180, 0)
 				panel:CheckBox(language.GetPhrase('#ps.markall_visible'), 'ps_markall_visible')
 

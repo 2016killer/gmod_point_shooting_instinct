@@ -3,7 +3,13 @@ local flags = { FCVAR_ARCHIVE, FCVAR_CLIENTCMD_CAN_EXECUTE, FCVAR_NOTIFY, FCVAR_
 
 CreateConVar('ps_sixthsense_range', '1000', flags)
 CreateConVar('ps_sixthsense_cost', '0.3', flags)
-CreateConVar('ps_sixthsense_ent_limit', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_actors', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_grenades', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_vehicles', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_breakables', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_weapons', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_scripted', '30', flags)
+CreateConVar('ps_sixthsense_ent_limit_other', '30', flags)
 CreateConVar('ps_sixthsense_duration', '1', flags)
 CreateConVar('ps_sixthsense_expand_time', '1', flags)
 CreateConVar('ps_sixthsense_scan_players', '1', flags)
@@ -23,6 +29,16 @@ local scanVehicles = GetConVar('ps_sixthsense_scan_vehicles')
 local scanBreakables = GetConVar('ps_sixthsense_scan_breakables')
 local scanWeapons = GetConVar('ps_sixthsense_scan_weapons')
 local scanScripted = GetConVar('ps_sixthsense_scan_scripted')
+
+local groupLimitCVars = {
+	actors = GetConVar('ps_sixthsense_ent_limit_actors'),
+	grenades = GetConVar('ps_sixthsense_ent_limit_grenades'),
+	vehicles = GetConVar('ps_sixthsense_ent_limit_vehicles'),
+	breakables = GetConVar('ps_sixthsense_ent_limit_breakables'),
+	weapons = GetConVar('ps_sixthsense_ent_limit_weapons'),
+	scripted = GetConVar('ps_sixthsense_ent_limit_scripted'),
+	other = GetConVar('ps_sixthsense_ent_limit_other'),
+}
 
 
 sixthsense = sixthsense or {}
@@ -48,7 +64,7 @@ concommand.Add('sixthsense', function(ply)
 			GetConVar('ps_sixthsense_range'):GetInt(),
 			GetConVar('ps_sixthsense_expand_time'):GetFloat(),
 			GetConVar('ps_sixthsense_duration'):GetFloat(),
-			GetConVar('ps_sixthsense_ent_limit'):GetFloat(),
+			nil,
 			false
 		)
 		surface.PlaySound('dishonored/darkvision_scan.wav')
@@ -97,16 +113,6 @@ sixthsense.BlackList = {
 	['mg_viewmodel'] = -1,
 	['lg_ragdoll'] = -1,
 	['mg_attachment'] = -1,
-}
-
-local groupPriority = {
-	actors = 0,
-	grenades = 0,
-	vehicles = 2,
-	breakables = 1,
-	weapons = 1,
-	scripted = 1,
-	other = 1,
 }
 
 local haloGroupOrder = {
@@ -204,24 +210,29 @@ local function ClampAbs(num, min, max)
 	return math.Clamp(math.abs(num), min, max)
 end
 
-function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, cycle, filterOverride)
+function sixthsense:Start(ply, targetRange, duration, durationAlpha, _limitent, cycle, filterOverride)
 	self.curRange = 0
 	self.alphaRate = 1
 
 	self.targetRange = ClampAbs(targetRange or 1000, 1, 10000)
-	self.limitent = ClampAbs(limitent or 30, 5, 100)
 	self.duration = ClampAbs(duration or 1, 0.1, 10)
 	self.durationAlpha = ClampAbs(durationAlpha or 2, 0.1, 10)
 
 	self.entqueue = {}
-	self.entGroups = {}
+	for _, group in ipairs(haloGroupOrder) do
+		self.entqueue[group] = {}
+	end
 
 	local pos = ply:GetPos()
 	local range = math.min(self.targetRange + 0.75 * (self.targetRange / self.duration) * self.durationAlpha, 2 * self.targetRange)
 	local entities = ents.FindInSphere(pos, range)
 	
 	local filter = filterOverride or self.Filter
-	local weightTable = {}
+	local groupCandidates = {}
+	for _, group in ipairs(haloGroupOrder) do
+		groupCandidates[group] = {}
+	end
+
 	for i, ent in ipairs(entities) do 
 		if not IsValid(ent) then
 			continue
@@ -230,36 +241,31 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 		end
 
 		local group, entOverride = filter(ent)
-		local priority = groupPriority[group]
-		if priority == nil then 
-			continue 
+		local candidates = groupCandidates[group]
+		if candidates == nil then
+			continue
 		end
 
 		table.insert(
-			weightTable, 
+			candidates,
 			{
 				ent = IsValid(entOverride) and entOverride or ent, 
-				priority = priority,
-				distanceSqr = (ent:GetPos() - pos):LengthSqr(),
-				group = group
+				distanceSqr = (ent:GetPos() - pos):LengthSqr()
 			}
 		)
 	end
 
-	table.sort(weightTable, function(a, b)
-		if a.priority == b.priority then
+	for _, group in ipairs(haloGroupOrder) do
+		local candidates = groupCandidates[group]
+		table.sort(candidates, function(a, b)
 			return a.distanceSqr < b.distanceSqr
+		end)
+
+		local queue = self.entqueue[group]
+		local limit = math.Clamp(groupLimitCVars[group]:GetInt(), 0, 1000)
+		for i = 1, math.min(limit, #candidates) do
+			table.insert(queue, candidates[i].ent)
 		end
-
-		return a.priority < b.priority
-	end)
-
-	-- PrintTable(weightTable)
-
-	for i = 1, math.min(self.limitent, #weightTable) do
-		local item = weightTable[i]
-		table.insert(self.entqueue, item.ent)
-		self.entGroups[item.ent] = item.group
 	end
 
 	self.cycle = cycle
@@ -275,11 +281,9 @@ function sixthsense:Clean()
 	self.alphaRate = nil
 	
 	self.targetRange = nil
-	self.limitent = nil
 	self.duration = nil
 	self.durationAlpha = nil
 	self.entqueue = {}
-	self.entGroups = {}
 	
 	self.cycle = nil
 	self.StartTime = nil
@@ -303,7 +307,7 @@ function sixthsense:Think()
 			self:Clean()
 			return
 		end
-		self:Start(LocalPlayer(), self.targetRange, self.duration, self.durationAlpha, self.limitent, self.cycle)
+		self:Start(LocalPlayer(), self.targetRange, self.duration, self.durationAlpha, nil, self.cycle)
 		surface.PlaySound('dishonored/darkvision_scan.wav')
 		hook.Run('SixthSenseEnd')
 	end
@@ -379,18 +383,17 @@ function sixthsense:DrawHalos()
 		for i = #entities, 1, -1 do
 			entities[i] = nil
 		end
-	end
 
-	for _, ent in ipairs(self.entqueue) do
-		if IsValid(ent) and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
-			if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
-				if not ent:Alive() then
-					continue
+		for _, ent in ipairs(self.entqueue[group]) do
+			if IsValid(ent) and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
+				if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
+					if not ent:Alive() then
+						continue
+					end
 				end
-			end
 
-			local group = self.entGroups[ent] or 'other'
-			haloGroups[group][#haloGroups[group] + 1] = ent
+				entities[#entities + 1] = ent
+			end
 		end
 	end
 

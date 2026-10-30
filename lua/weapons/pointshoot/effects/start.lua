@@ -58,7 +58,7 @@ function SWEP:StartEffect(ply)
 		surface.PlaySound('hitman/start.mp3')
 		self:ScreenFlash(150, 0, 0.2)
 
-		local succ, err = pcall(sixthsense.Start, sixthsense, LocalPlayer(), 500, 0.1, 0.5, 30, false, filter)
+		local succ, err = pcall(sixthsense.Start, sixthsense, LocalPlayer(), 500, 0.1, 0.5, nil, false, filter)
 		if not succ then
 			print('[PointShooting]: sixthsense.Start failed:', err)
 		end
