@@ -18,6 +18,8 @@ if CLIENT then
 					ps_sixthsense_scan_grenades = '1',
 					ps_sixthsense_scan_vehicles = '1',
 					ps_sixthsense_scan_breakables = '1',
+					ps_sixthsense_scan_weapons = '1',
+					ps_sixthsense_scan_scripted = '1',
 				}
 
 				local ctrl = vgui.Create('ControlPresets', panel)
@@ -36,6 +38,8 @@ if CLIENT then
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_grenades'), 'ps_sixthsense_scan_grenades')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_vehicles'), 'ps_sixthsense_scan_vehicles')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_breakables'), 'ps_sixthsense_scan_breakables')
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_weapons'), 'ps_sixthsense_scan_weapons')
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_scripted'), 'ps_sixthsense_scan_scripted')
 
 				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end

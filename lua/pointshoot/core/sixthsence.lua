@@ -11,6 +11,8 @@ CreateConVar('ps_sixthsense_scan_npcs', '1', flags)
 CreateConVar('ps_sixthsense_scan_grenades', '1', flags)
 CreateConVar('ps_sixthsense_scan_vehicles', '1', flags)
 CreateConVar('ps_sixthsense_scan_breakables', '1', flags)
+CreateConVar('ps_sixthsense_scan_weapons', '1', flags)
+CreateConVar('ps_sixthsense_scan_scripted', '1', flags)
 
 if SERVER then return end
 
@@ -19,6 +21,8 @@ local scanNPCs = GetConVar('ps_sixthsense_scan_npcs')
 local scanGrenades = GetConVar('ps_sixthsense_scan_grenades')
 local scanVehicles = GetConVar('ps_sixthsense_scan_vehicles')
 local scanBreakables = GetConVar('ps_sixthsense_scan_breakables')
+local scanWeapons = GetConVar('ps_sixthsense_scan_weapons')
+local scanScripted = GetConVar('ps_sixthsense_scan_scripted')
 
 
 sixthsense = sixthsense or {}
@@ -155,15 +159,27 @@ sixthsense.Filter = function(ent)
 		return 2
 	end
 
-	if ent:GetMaxHealth() > 2 then
-		if not scanBreakables:GetBool() then
+	if ent:IsWeapon() then
+		if not scanWeapons:GetBool() then
 			return nil
 		end
 
 		return 1
 	end
 
-	if scripted_ents.GetStored(class) or ent:IsWeapon() then
+	if scripted_ents.GetStored(class) then
+		if not scanScripted:GetBool() then
+			return nil
+		end
+
+		return 1
+	end
+
+	if ent:GetMaxHealth() > 2 then
+		if not scanBreakables:GetBool() then
+			return nil
+		end
+
 		return 1
 	end
 
