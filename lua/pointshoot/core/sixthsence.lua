@@ -93,6 +93,32 @@ concommand.Add('sixthsense', function(ply)
 	end
 end)
 
+local sixthsenseTimer = 'pointshoot.sixthsense.hold'
+concommand.Add('+sixthsense', function()
+	timer.Remove(sixthsenseTimer)
+	RunConsoleCommand('sixthsense')
+	timer.Create(sixthsenseTimer, 0.1, 0, function()
+		local ply = LocalPlayer()
+		if not IsValid(ply) or not ply:Alive() then
+			return
+		end
+
+		local curpower = ply:GetNW2Float('psnw_power', 1)
+		local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
+		if curpower < powercost then
+			return
+		end
+
+		if not sixthsense.enable or (sixthsense.alphaRate and sixthsense.alphaRate <= 0.2) then
+			RunConsoleCommand('sixthsense')
+		end
+	end)
+end)
+
+concommand.Add('-sixthsense', function()
+	timer.Remove(sixthsenseTimer)
+end)
+
 sixthsense.WhiteList = {
 	['combine_mine'] = 'grenades',
 	['grenade_helicopter'] = 'grenades',
