@@ -36,15 +36,10 @@ if CLIENT then
 
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_range'), 'ps_sixthsense_range', 100, 5000, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_cost'), 'ps_sixthsense_cost', 0, 1, 2)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_actors'), 'ps_sixthsense_ent_limit_actors', 0, 60, 0)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_grenades'), 'ps_sixthsense_ent_limit_grenades', 0, 60, 0)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_vehicles'), 'ps_sixthsense_ent_limit_vehicles', 0, 60, 0)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_breakables'), 'ps_sixthsense_ent_limit_breakables', 0, 60, 0)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_weapons'), 'ps_sixthsense_ent_limit_weapons', 0, 60, 0)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_scripted'), 'ps_sixthsense_ent_limit_scripted', 0, 60, 0)
-				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_other'), 'ps_sixthsense_ent_limit_other', 0, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_duration'), 'ps_sixthsense_duration', 0, 5, 1)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_expand_time'), 'ps_sixthsense_expand_time', 0.1, 5, 2)
+
+				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.filter_behavior'))
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_players'), 'ps_sixthsense_scan_players')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_npcs'), 'ps_sixthsense_scan_npcs')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_grenades'), 'ps_sixthsense_scan_grenades')
@@ -52,6 +47,15 @@ if CLIENT then
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_breakables'), 'ps_sixthsense_scan_breakables')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_weapons'), 'ps_sixthsense_scan_weapons')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_scripted'), 'ps_sixthsense_scan_scripted')
+
+				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.entity_limit'))
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_actors'), 'ps_sixthsense_ent_limit_actors', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_grenades'), 'ps_sixthsense_ent_limit_grenades', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_vehicles'), 'ps_sixthsense_ent_limit_vehicles', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_breakables'), 'ps_sixthsense_ent_limit_breakables', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_weapons'), 'ps_sixthsense_ent_limit_weapons', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_scripted'), 'ps_sixthsense_ent_limit_scripted', 0, 60, 0)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_other'), 'ps_sixthsense_ent_limit_other', 0, 60, 0)
 
 				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
