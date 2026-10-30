@@ -124,17 +124,7 @@ sixthsense.Filter = function(ent)
 			ent.psss_skin:Remove()
 		end
 
-		local grenade = ClientsideModel(ent:GetModel())
-		grenade:SetPos(ent:GetPos())
-		grenade:SetAngles(ent:GetAngles())
-		grenade:SetParent(ent)
-		grenade:SetNoDraw(true)
-
-		ent.psss_skin = grenade
-
-		ent:CallOnRemove('sixthsense_grenade', function() if IsValid(grenade) then grenade:Remove() end end)
-
-		return 0, grenade
+		return 0
 	end
 
 	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
