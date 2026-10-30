@@ -33,6 +33,7 @@ if CLIENT then
 					ps_sixthsense_scan_breakables = '1',
 					ps_sixthsense_scan_weapons = '1',
 					ps_sixthsense_scan_scripted = '1',
+					ps_sixthsense_halo_simple = '1',
 				}
 
 				local ctrl = vgui.Create('ControlPresets', panel)
@@ -54,6 +55,10 @@ if CLIENT then
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_breakables'), 'ps_sixthsense_scan_breakables')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_weapons'), 'ps_sixthsense_scan_weapons')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_scripted'), 'ps_sixthsense_scan_scripted')
+
+				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.halo_options'))
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_halo_simple'), 'ps_sixthsense_halo_simple')
+				panel:Help(language.GetPhrase('#ps.sixthsense_halo_simple.help'))
 
 				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.entity_limit'))
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_actors'), 'ps_sixthsense_ent_limit_actors', 0, 60, 0)

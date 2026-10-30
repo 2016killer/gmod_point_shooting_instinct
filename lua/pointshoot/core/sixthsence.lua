@@ -19,6 +19,7 @@ CreateConVar('ps_sixthsense_scan_vehicles', '1', flags)
 CreateConVar('ps_sixthsense_scan_breakables', '1', flags)
 CreateConVar('ps_sixthsense_scan_weapons', '1', flags)
 CreateConVar('ps_sixthsense_scan_scripted', '1', flags)
+CreateConVar('ps_sixthsense_halo_simple', '1', flags)
 
 if SERVER then return end
 
@@ -37,6 +38,7 @@ local scanVehicles = GetConVar('ps_sixthsense_scan_vehicles')
 local scanBreakables = GetConVar('ps_sixthsense_scan_breakables')
 local scanWeapons = GetConVar('ps_sixthsense_scan_weapons')
 local scanScripted = GetConVar('ps_sixthsense_scan_scripted')
+local haloSimple = GetConVar('ps_sixthsense_halo_simple')
 
 local groupLimitCVars = {
 	actors = GetConVar('ps_sixthsense_ent_limit_actors'),
@@ -153,6 +155,11 @@ local haloGroupOrder = {
 	'vehicles',
 	'breakables',
 	'weapons',
+	'scripted',
+	'other',
+}
+local simpleHaloGroupOrder = {
+	'actors',
 	'scripted',
 	'other',
 }
@@ -409,13 +416,16 @@ function sixthsense:DrawHalos()
 
 	local plypos = LocalPlayer():GetPos()
 	local maxDistSqr = self.curRange * self.curRange + 40000
+	local simpleGrouping = haloSimple:GetBool()
 
 	for _, group in ipairs(haloGroupOrder) do
 		local entities = haloGroups[group]
 		for i = #entities, 1, -1 do
 			entities[i] = nil
 		end
+	end
 
+	for _, group in ipairs(haloGroupOrder) do
 		for _, ent in ipairs(self.entqueue[group]) do
 			if IsValid(ent) and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
 				if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
@@ -424,13 +434,25 @@ function sixthsense:DrawHalos()
 					end
 				end
 
-				entities[#entities + 1] = ent
+				local targetGroup = group
+				if simpleGrouping then
+					if group == 'actors' or group == 'grenades' then
+						targetGroup = 'actors'
+					elseif group == 'scripted' then
+						targetGroup = 'scripted'
+					else
+						targetGroup = 'other'
+					end
+				end
+
+				haloGroups[targetGroup][#haloGroups[targetGroup] + 1] = ent
 			end
 		end
 	end
 
 	local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
-	for _, group in ipairs(haloGroupOrder) do
+	local drawGroupOrder = simpleGrouping and simpleHaloGroupOrder or haloGroupOrder
+	for _, group in ipairs(drawGroupOrder) do
 		local entities = haloGroups[group]
 		if #entities > 0 then
 			local color = ParseColor(groupColorCVars[group]:GetString())
