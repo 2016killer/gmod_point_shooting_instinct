@@ -15,7 +15,7 @@ local function filter(ent)
 			ent.psss_skin:Remove()
 		end
 
-		return 0
+		return 'grenades'
 	end
 
 	if ent:IsNPC() then
@@ -38,14 +38,14 @@ local function filter(ent)
 
 			ent:CallOnRemove('sixthsense_skeleton', function() if IsValid(skeleton) then skeleton:Remove() end end)
 
-			return 0, skeleton
+			return 'actors', skeleton
 		else
-			return 0
+			return 'actors'
 		end
 	end
 
 	if ent:GetMaxHealth() > 2 then
-		return 1
+		return 'breakables'
 	end
 
 	return nil

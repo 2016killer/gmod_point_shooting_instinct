@@ -70,27 +70,27 @@ concommand.Add('sixthsense_old', function(ply, cmd, args)
 end)
 
 sixthsense.WhiteList = {
-	['combine_mine'] = 0,
-	['grenade_helicopter'] = 0,
-	['item_ammo_357'] = 1,
-	['item_ammo_357_large'] = 1,
-	['item_ammo_ar2'] = 1,
-	['item_ammo_ar2_altfire'] = 1,
-	['item_ammo_ar2_large'] = 1,
-	['item_ammo_crossbow'] = 1,
-	['item_ammo_pistol'] = 1,
-	['item_ammo_pistol_large'] = 1,
-	['item_ammo_smg1'] = 1,
-	['item_ammo_smg1_grenade'] = 1,
-	['item_ammo_smg1_large'] = 1,
-	['item_battery'] = 1,
-	['item_box_buckshot'] = 1,
-	['item_healthcharger'] = 1,
-	['item_healthkit'] = 1,
-	['item_healthvial'] = 1,
-	['item_rpg_round'] = 1,
-	['item_suitcharger'] = 1,
-	['combine_mine_resistance'] = 1,
+	['combine_mine'] = 'grenades',
+	['grenade_helicopter'] = 'grenades',
+	['item_ammo_357'] = 'other',
+	['item_ammo_357_large'] = 'other',
+	['item_ammo_ar2'] = 'other',
+	['item_ammo_ar2_altfire'] = 'other',
+	['item_ammo_ar2_large'] = 'other',
+	['item_ammo_crossbow'] = 'other',
+	['item_ammo_pistol'] = 'other',
+	['item_ammo_pistol_large'] = 'other',
+	['item_ammo_smg1'] = 'other',
+	['item_ammo_smg1_grenade'] = 'other',
+	['item_ammo_smg1_large'] = 'other',
+	['item_battery'] = 'other',
+	['item_box_buckshot'] = 'other',
+	['item_healthcharger'] = 'other',
+	['item_healthkit'] = 'other',
+	['item_healthvial'] = 'other',
+	['item_rpg_round'] = 'other',
+	['item_suitcharger'] = 'other',
+	['combine_mine_resistance'] = 'grenades',
 }
 
 sixthsense.BlackList = {
@@ -98,6 +98,30 @@ sixthsense.BlackList = {
 	['lg_ragdoll'] = -1,
 	['mg_attachment'] = -1,
 }
+
+local groupPriority = {
+	actors = 0,
+	grenades = 0,
+	vehicles = 2,
+	breakables = 1,
+	weapons = 1,
+	scripted = 1,
+	other = 1,
+}
+
+local haloGroupOrder = {
+	'actors',
+	'grenades',
+	'vehicles',
+	'breakables',
+	'weapons',
+	'scripted',
+	'other',
+}
+local haloGroups = {}
+for _, group in ipairs(haloGroupOrder) do
+	haloGroups[group] = {}
+end
 
 
 sixthsense.Filter = function(ent)
@@ -124,7 +148,7 @@ sixthsense.Filter = function(ent)
 			ent.psss_skin:Remove()
 		end
 
-		return 0
+		return 'grenades'
 	end
 
 	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
@@ -138,7 +162,7 @@ sixthsense.Filter = function(ent)
 			return nil
 		end
 
-		return 0
+		return 'actors'
 	end
 
 	if ent:IsVehicle() then
@@ -146,7 +170,7 @@ sixthsense.Filter = function(ent)
 			return nil
 		end
 
-		return 2
+		return 'vehicles'
 	end
 
 	if ent:IsWeapon() then
@@ -154,7 +178,7 @@ sixthsense.Filter = function(ent)
 			return nil
 		end
 
-		return 1
+		return 'weapons'
 	end
 
 	if scripted_ents.GetStored(class) then
@@ -162,7 +186,7 @@ sixthsense.Filter = function(ent)
 			return nil
 		end
 
-		return 1
+		return 'scripted'
 	end
 
 	if ent:GetMaxHealth() > 2 then
@@ -170,7 +194,7 @@ sixthsense.Filter = function(ent)
 			return nil
 		end
 
-		return 1
+		return 'breakables'
 	end
 
 	return nil
@@ -190,6 +214,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 	self.durationAlpha = ClampAbs(durationAlpha or 2, 0.1, 10)
 
 	self.entqueue = {}
+	self.entGroups = {}
 
 	local pos = ply:GetPos()
 	local range = math.min(self.targetRange + 0.75 * (self.targetRange / self.duration) * self.durationAlpha, 2 * self.targetRange)
@@ -204,7 +229,8 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 			continue
 		end
 
-		local priority, entOverride = filter(ent)
+		local group, entOverride = filter(ent)
+		local priority = groupPriority[group]
 		if priority == nil then 
 			continue 
 		end
@@ -214,7 +240,8 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 			{
 				ent = IsValid(entOverride) and entOverride or ent, 
 				priority = priority,
-				distanceSqr = (ent:GetPos() - pos):LengthSqr()
+				distanceSqr = (ent:GetPos() - pos):LengthSqr(),
+				group = group
 			}
 		)
 	end
@@ -230,7 +257,9 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, limitent, c
 	-- PrintTable(weightTable)
 
 	for i = 1, math.min(self.limitent, #weightTable) do
-		table.insert(self.entqueue, weightTable[i].ent)
+		local item = weightTable[i]
+		table.insert(self.entqueue, item.ent)
+		self.entGroups[item.ent] = item.group
 	end
 
 	self.cycle = cycle
@@ -250,6 +279,7 @@ function sixthsense:Clean()
 	self.duration = nil
 	self.durationAlpha = nil
 	self.entqueue = {}
+	self.entGroups = {}
 	
 	self.cycle = nil
 	self.StartTime = nil
@@ -336,8 +366,6 @@ function sixthsense:Draw()
 	render.SuppressEngineLighting(false)
 end
 
-local npc_halo_entities = {}
-local other_halo_entities = {}
 function sixthsense:DrawHalos()
 	if not self.enable then
 		return
@@ -346,11 +374,11 @@ function sixthsense:DrawHalos()
 	local plypos = LocalPlayer():GetPos()
 	local maxDistSqr = self.curRange * self.curRange + 40000
 
-	for i = #npc_halo_entities, 1, -1 do
-		npc_halo_entities[i] = nil
-	end
-	for i = #other_halo_entities, 1, -1 do
-		other_halo_entities[i] = nil
+	for _, group in ipairs(haloGroupOrder) do
+		local entities = haloGroups[group]
+		for i = #entities, 1, -1 do
+			entities[i] = nil
+		end
 	end
 
 	for _, ent in ipairs(self.entqueue) do
@@ -361,22 +389,19 @@ function sixthsense:DrawHalos()
 				end
 			end
 
-			if ent:IsNPC() then
-				npc_halo_entities[#npc_halo_entities + 1] = ent
-			else
-				other_halo_entities[#other_halo_entities + 1] = ent
-			end
+			local group = self.entGroups[ent] or 'other'
+			haloGroups[group][#haloGroups[group] + 1] = ent
 		end
 	end
 
 	local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
 	local color = self.color3
 	local haloColor = Color(color.r * alpha, color.g * alpha, color.b * alpha)
-	if #npc_halo_entities > 0 then
-		halo.Add(npc_halo_entities, haloColor, 1, 1, 1, true, true)
-	end
-	if #other_halo_entities > 0 then
-		halo.Add(other_halo_entities, haloColor, 1, 1, 1, true, true)
+	for _, group in ipairs(haloGroupOrder) do
+		local entities = haloGroups[group]
+		if #entities > 0 then
+			halo.Add(entities, haloColor, 1, 1, 1, true, true)
+		end
 	end
 end
 
