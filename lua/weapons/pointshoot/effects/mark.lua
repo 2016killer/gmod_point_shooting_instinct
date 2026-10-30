@@ -25,8 +25,8 @@ function SWEP:MarkEffect(mark)
 end
 
 if CLIENT then
-    SWEP.mark_mat = Material('hitman/mark.png')
-    SWEP.mark_death_mat = Material('hitman/mark_death.png')
+    SWEP.mark_mat = Material('hitman/mark')
+    SWEP.mark_death_mat = Material('hitman/mark_death')
 
     function SWEP:Elasticity(x)
         if x >= 1 then return 1 end
