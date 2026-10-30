@@ -6,8 +6,19 @@ CreateConVar('ps_sixthsense_cost', '0.3', flags)
 CreateConVar('ps_sixthsense_ent_limit', '30', flags)
 CreateConVar('ps_sixthsense_duration', '1', flags)
 CreateConVar('ps_sixthsense_expand_time', '1', flags)
+CreateConVar('ps_sixthsense_scan_players', '1', flags)
+CreateConVar('ps_sixthsense_scan_npcs', '1', flags)
+CreateConVar('ps_sixthsense_scan_grenades', '1', flags)
+CreateConVar('ps_sixthsense_scan_vehicles', '1', flags)
+CreateConVar('ps_sixthsense_scan_breakables', '1', flags)
 
 if SERVER then return end
+
+local scanPlayers = GetConVar('ps_sixthsense_scan_players')
+local scanNPCs = GetConVar('ps_sixthsense_scan_npcs')
+local scanGrenades = GetConVar('ps_sixthsense_scan_grenades')
+local scanVehicles = GetConVar('ps_sixthsense_scan_vehicles')
+local scanBreakables = GetConVar('ps_sixthsense_scan_breakables')
 
 
 sixthsense = sixthsense or {}
@@ -101,6 +112,10 @@ sixthsense.Filter = function(ent)
 	end
 
 	if pointshoot:IsGrenade(ent) then
+		if not scanGrenades:GetBool() then
+			return nil
+		end
+
 		if IsValid(ent.psss_skin) then
 			ent.psss_skin:Remove()
 		end
@@ -118,7 +133,13 @@ sixthsense.Filter = function(ent)
 		return 0, grenade
 	end
 
-	if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
+	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then
+		if ent:IsPlayer() and not scanPlayers:GetBool() then
+			return nil
+		elseif not ent:IsPlayer() and not scanNPCs:GetBool() then
+			return nil
+		end
+
 		if not ent:Alive() then
 			return nil
 		end
@@ -126,12 +147,24 @@ sixthsense.Filter = function(ent)
 		return 0
 	end
 
-	if ent:GetMaxHealth() > 2 or scripted_ents.GetStored(class) or ent:IsWeapon() then
+	if ent:IsVehicle() then
+		if not scanVehicles:GetBool() then
+			return nil
+		end
+
+		return 2
+	end
+
+	if ent:GetMaxHealth() > 2 then
+		if not scanBreakables:GetBool() then
+			return nil
+		end
+
 		return 1
 	end
 
-	if ent:IsVehicle() then
-		return 2
+	if scripted_ents.GetStored(class) or ent:IsWeapon() then
+		return 1
 	end
 
 	return nil

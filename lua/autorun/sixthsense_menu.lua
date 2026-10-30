@@ -13,6 +13,11 @@ if CLIENT then
 					ps_sixthsense_ent_limit = '30',
 					ps_sixthsense_duration = '1',
 					ps_sixthsense_expand_time = '1',
+					ps_sixthsense_scan_players = '1',
+					ps_sixthsense_scan_npcs = '1',
+					ps_sixthsense_scan_grenades = '1',
+					ps_sixthsense_scan_vehicles = '1',
+					ps_sixthsense_scan_breakables = '1',
 				}
 
 				local ctrl = vgui.Create('ControlPresets', panel)
@@ -26,6 +31,11 @@ if CLIENT then
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit'), 'ps_sixthsense_ent_limit', 10, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_duration'), 'ps_sixthsense_duration', 0, 5, 1)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_expand_time'), 'ps_sixthsense_expand_time', 0.1, 5, 2)
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_players'), 'ps_sixthsense_scan_players')
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_npcs'), 'ps_sixthsense_scan_npcs')
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_grenades'), 'ps_sixthsense_scan_grenades')
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_vehicles'), 'ps_sixthsense_scan_vehicles')
+				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_breakables'), 'ps_sixthsense_scan_breakables')
 
 				panel:ControlHelp("Version: " .. (pointshoot and pointshoot.Version or 'Unknown'))
 			end
