@@ -88,23 +88,8 @@ concommand.Add('sixthsense', function(ply)
 			GetConVar('ps_sixthsense_range'):GetInt(),
 			GetConVar('ps_sixthsense_expand_time'):GetFloat(),
 			GetConVar('ps_sixthsense_duration'):GetFloat(),
-			nil,
 			false
 		)
-		surface.PlaySound('dishonored/darkvision_scan.wav')
-	end
-end)
-
-concommand.Add('sixthsense_old', function(ply, cmd, args)
-	local curpower = LocalPlayer():GetNW2Float('psnw_power', 1)
-	local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
-	if curpower <= powercost then 
-		return 
-	end
-
-	if not sixthsense.enable or (sixthsense.alphaRate and sixthsense.alphaRate <= 0.2) then
-		pointshoot:CallDoubleEnd('CTSDecrPower', LocalPlayer(), powercost)
-		sixthsense:Start(LocalPlayer(), unpack(args))
 		surface.PlaySound('dishonored/darkvision_scan.wav')
 	end
 end)
@@ -250,7 +235,7 @@ local function ClampAbs(num, min, max)
 	return math.Clamp(math.abs(num), min, max)
 end
 
-function sixthsense:Start(ply, targetRange, duration, durationAlpha, _limitent, cycle, filterOverride)
+function sixthsense:Start(ply, targetRange, duration, durationAlpha, cycle, filterOverride)
 	self.curRange = 0
 	self.alphaRate = 1
 
@@ -347,7 +332,7 @@ function sixthsense:Think()
 			self:Clean()
 			return
 		end
-		self:Start(LocalPlayer(), self.targetRange, self.duration, self.durationAlpha, nil, self.cycle)
+		self:Start(LocalPlayer(), self.targetRange, self.duration, self.durationAlpha, self.cycle)
 		surface.PlaySound('dishonored/darkvision_scan.wav')
 		hook.Run('SixthSenseEnd')
 	end
