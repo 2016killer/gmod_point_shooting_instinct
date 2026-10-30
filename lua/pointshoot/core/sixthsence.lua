@@ -22,10 +22,12 @@ CreateConVar('ps_sixthsense_scan_scripted', '1', flags)
 
 if SERVER then return end
 
+CreateClientConVar('ps_sixthsense_cooldown', '1', true, false, '')
 CreateClientConVar('ps_sixthsense_color_dangerous', '255,255,255', true, false, '')
 CreateClientConVar('ps_sixthsense_color_scripted', '255,255,255', true, false, '')
 CreateClientConVar('ps_sixthsense_color_other', '255,255,255', true, false, '')
 
+local cooldownCVar = GetConVar('ps_sixthsense_cooldown')
 local scanPlayers = GetConVar('ps_sixthsense_scan_players')
 local scanNPCs = GetConVar('ps_sixthsense_scan_npcs')
 local scanGrenades = GetConVar('ps_sixthsense_scan_grenades')
@@ -53,6 +55,8 @@ local groupColorCVars = {
 
 sixthsense = sixthsense or {}
 local sixthsense = sixthsense
+sixthsense.snapshots = {}
+sixthsense.nextUse = 0
 local function ParseColor(value)
 	local r, g, b = string.match(value or '', '^%s*(%d+)[%s,]+(%d+)[%s,]+(%d+)%s*$')
 	if not r then
@@ -75,6 +79,11 @@ sixthsense.color1 = Color(0, 0, 0, 100)
 sixthsense.color2 = Color(255, 255, 255, 255)
 sixthsense.color3 = Color(255, 255, 255, 255)
 concommand.Add('sixthsense', function(ply)
+	local now = RealTime()
+	if now < sixthsense.nextUse then
+		return
+	end
+
 	local curpower = LocalPlayer():GetNW2Float('psnw_power', 1)
 	local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
 	if curpower < powercost then 
@@ -82,15 +91,14 @@ concommand.Add('sixthsense', function(ply)
 		return 
 	end
 
-	if not sixthsense.enable or (sixthsense.alphaRate and sixthsense.alphaRate <= 0.2) then
-		pointshoot:CallDoubleEnd('CTSDecrPower', LocalPlayer(), powercost)
-		sixthsense:Start(LocalPlayer(), 
-			GetConVar('ps_sixthsense_range'):GetInt(),
-			GetConVar('ps_sixthsense_expand_time'):GetFloat(),
-			GetConVar('ps_sixthsense_duration'):GetFloat()
-		)
-		surface.PlaySound('dishonored/darkvision_scan.wav')
-	end
+	pointshoot:CallDoubleEnd('CTSDecrPower', LocalPlayer(), powercost)
+	sixthsense:Start(LocalPlayer(),
+		GetConVar('ps_sixthsense_range'):GetInt(),
+		GetConVar('ps_sixthsense_expand_time'):GetFloat(),
+		GetConVar('ps_sixthsense_duration'):GetFloat()
+	)
+	sixthsense.nextUse = now + math.max(cooldownCVar:GetFloat(), 0)
+	surface.PlaySound('dishonored/darkvision_scan.wav')
 end)
 
 local sixthsenseTimer = 'pointshoot.sixthsense.hold'
@@ -109,7 +117,7 @@ concommand.Add('+sixthsense', function()
 			return
 		end
 
-		if not sixthsense.enable or (sixthsense.alphaRate and sixthsense.alphaRate <= 0.2) then
+		if RealTime() >= sixthsense.nextUse then
 			RunConsoleCommand('sixthsense')
 		end
 	end)
@@ -172,12 +180,6 @@ local filterGroupToHaloGroup = {
 	scripted = 'scripted',
 	other = 'other',
 }
-local haloGroups = {}
-for _, group in ipairs(haloGroupOrder) do
-	haloGroups[group] = {}
-end
-
-
 sixthsense.Filter = function(ent)
 	if ent == LocalPlayer() or ent:GetOwner() == LocalPlayer() or ent:GetParent() == LocalPlayer() then
 		return nil
@@ -261,22 +263,29 @@ local function ClampAbs(num, min, max)
 end
 
 function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverride)
-	self.curRange = 0
-	self.alphaRate = 1
+	local snapshot = {
+		position = ply:GetPos(),
+		startTime = RealTime(),
+		targetRange = ClampAbs(targetRange or 1000, 1, 10000),
+		expandTime = ClampAbs(duration or 1, 0.1, 10),
+		fadeTime = ClampAbs(durationAlpha or 2, 0.1, 10),
+		curRange = 0,
+		alphaRate = 1,
+		groups = {},
+		renderGroups = {},
+	}
 
-	self.targetRange = ClampAbs(targetRange or 1000, 1, 10000)
-	self.duration = ClampAbs(duration or 1, 0.1, 10)
-	self.durationAlpha = ClampAbs(durationAlpha or 2, 0.1, 10)
-
-	self.entqueue = {}
-	for _, group in ipairs(filterGroupOrder) do
-		self.entqueue[group] = {}
+	for _, group in ipairs(haloGroupOrder) do
+		snapshot.groups[group] = {}
+		snapshot.renderGroups[group] = {}
 	end
 
-	local pos = ply:GetPos()
-	local range = math.min(self.targetRange + 0.75 * (self.targetRange / self.duration) * self.durationAlpha, 2 * self.targetRange)
-	local entities = ents.FindInSphere(pos, range)
-	
+	local range = math.min(
+		snapshot.targetRange + 0.75 * (snapshot.targetRange / snapshot.expandTime) * snapshot.fadeTime,
+		2 * snapshot.targetRange
+	)
+	local entities = ents.FindInSphere(snapshot.position, range)
+
 	local filter = filterOverride or self.Filter
 	local groupCandidates = {}
 	for _, group in ipairs(filterGroupOrder) do
@@ -300,7 +309,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverr
 			candidates,
 			{
 				ent = IsValid(entOverride) and entOverride or ent, 
-				distanceSqr = (ent:GetPos() - pos):LengthSqr()
+				distanceSqr = (ent:GetPos() - snapshot.position):LengthSqr()
 			}
 		)
 	end
@@ -311,47 +320,36 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverr
 			return a.distanceSqr < b.distanceSqr
 		end)
 
-		local queue = self.entqueue[group]
+		local haloGroup = filterGroupToHaloGroup[group]
 		local limit = math.Clamp(groupLimitCVars[group]:GetInt(), 0, 1000)
 		for i = 1, math.min(limit, #candidates) do
-			table.insert(queue, candidates[i].ent)
+			table.insert(snapshot.groups[haloGroup], candidates[i].ent)
 		end
 	end
 
-	self.StartTime = RealTime()
-	self.enable = true
-
+	table.insert(self.snapshots, snapshot)
 	hook.Run('SixthSenseStart')
-end
-
-function sixthsense:Clean()
-	self.enable = nil
-	self.curRange = nil
-	self.alphaRate = nil
-	
-	self.targetRange = nil
-	self.duration = nil
-	self.durationAlpha = nil
-	self.entqueue = {}
-	
-	self.StartTime = nil
+	return snapshot
 end
 
 function sixthsense:Think()
-	if not self.enable then
-		return
-	end
+	local now = RealTime()
+	for i = #self.snapshots, 1, -1 do
+		local snapshot = self.snapshots[i]
+		local elapsed = now - snapshot.startTime
 
-	local dt = RealTime() - self.StartTime
-	local rate = dt / self.duration
+		snapshot.curRange = (elapsed / snapshot.expandTime) * snapshot.targetRange
+		if elapsed >= snapshot.expandTime then
+			snapshot.alphaRate = math.Clamp(
+				1 - (elapsed - snapshot.expandTime) / snapshot.fadeTime,
+				0,
+				1
+			)
+		end
 
-	self.curRange = rate * self.targetRange
-	if dt >= self.duration then
-		self.alphaRate = math.Clamp(1 - (dt - self.duration) / self.durationAlpha, 0, 1)
-	end
-
-	if dt >= self.duration + self.durationAlpha then
-		self:Clean()
+		if elapsed >= snapshot.expandTime + snapshot.fadeTime then
+			table.remove(self.snapshots, i)
+		end
 	end
 end
 
@@ -359,11 +357,10 @@ hook.Add('Think', 'sixthsense', function() sixthsense:Think() end)
 
 local white = Color(255, 255, 255, 255)
 local vol_light001_mat = Material('Models/effects/vol_light001')
-function sixthsense:Draw()
-	if not self.enable then
-		return 
+function sixthsense:DrawSnapshot(snapshot)
+	if snapshot.alphaRate <= 0 then
+		return
 	end
-	local plypos = LocalPlayer():GetPos()
 
 	render.ClearStencil()
 	render.SetStencilEnable(true)
@@ -376,7 +373,7 @@ function sixthsense:Draw()
 		render.SetStencilFailOperation(STENCIL_KEEP)
 		render.SetStencilZFailOperation(STENCIL_INCR)
 		render.SetMaterial(vol_light001_mat)
-		render.DrawSphere(plypos, self.curRange, 8, 8, white)
+		render.DrawSphere(snapshot.position, snapshot.curRange, 8, 8, white)
 	
 		render.SetStencilReferenceValue(1)
 		render.SetStencilCompareFunction(STENCIL_EQUAL)
@@ -385,7 +382,7 @@ function sixthsense:Draw()
 		render.SetStencilZFailOperation(STENCIL_KEEP)
 
 		cam.Start2D()
-			surface.SetDrawColor(self.color1.r, self.color1.g, self.color1.b, self.color1.a * self.alphaRate)
+			surface.SetDrawColor(self.color1.r, self.color1.g, self.color1.b, self.color1.a * snapshot.alphaRate)
 			surface.DrawRect(0, 0, ScrW(), ScrH())
 		cam.End2D()
 
@@ -395,7 +392,7 @@ function sixthsense:Draw()
 		render.SetStencilFailOperation(STENCIL_KEEP)
 		render.SetStencilZFailOperation(STENCIL_INCR)
 		render.SetMaterial(vol_light001_mat)
-		render.DrawSphere(plypos, self.curRange + 20, 8, 8, white)
+		render.DrawSphere(snapshot.position, snapshot.curRange + 20, 8, 8, white)
 
 
 		render.SetStencilReferenceValue(1)
@@ -404,7 +401,7 @@ function sixthsense:Draw()
 		render.SetStencilFailOperation(STENCIL_KEEP)
 		render.SetStencilZFailOperation(STENCIL_KEEP)
 		cam.Start2D()
-			surface.SetDrawColor(self.color2.r, self.color2.g, self.color2.b, self.color2.a * self.alphaRate)
+			surface.SetDrawColor(self.color2.r, self.color2.g, self.color2.b, self.color2.a * snapshot.alphaRate)
 			surface.DrawRect(0, 0, ScrW(), ScrH())
 		cam.End2D()
 
@@ -412,44 +409,47 @@ function sixthsense:Draw()
 	render.SuppressEngineLighting(false)
 end
 
-function sixthsense:DrawHalos()
-	if not self.enable then
-		return
+function sixthsense:Draw()
+	for _, snapshot in ipairs(self.snapshots) do
+		self:DrawSnapshot(snapshot)
 	end
+end
 
-	local plypos = LocalPlayer():GetPos()
-	local maxDistSqr = self.curRange * self.curRange + 40000
-
+function sixthsense:DrawSnapshotHalos(snapshot)
+	local maxDistSqr = snapshot.curRange * snapshot.curRange + 40000
 	for _, group in ipairs(haloGroupOrder) do
-		local entities = haloGroups[group]
+		local entities = snapshot.renderGroups[group]
 		for i = #entities, 1, -1 do
 			entities[i] = nil
 		end
-	end
 
-	for _, filterGroup in ipairs(filterGroupOrder) do
-		local haloGroup = filterGroupToHaloGroup[filterGroup]
-		for _, ent in ipairs(self.entqueue[filterGroup]) do
-			if IsValid(ent) and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
+		for _, ent in ipairs(snapshot.groups[group]) do
+			if IsValid(ent) and snapshot.position:DistToSqr(ent:GetPos()) <= maxDistSqr then
 				if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
 					if not ent:Alive() then
 						continue
 					end
 				end
 
-				haloGroups[haloGroup][#haloGroups[haloGroup] + 1] = ent
+				entities[#entities + 1] = ent
 			end
 		end
-	end
 
-	local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
-	for _, group in ipairs(haloGroupOrder) do
-		local entities = haloGroups[group]
 		if #entities > 0 then
 			local color = ParseColor(groupColorCVars[group]:GetString())
-			local haloColor = Color(color.r * alpha, color.g * alpha, color.b * alpha)
+			local haloColor = Color(
+				color.r * snapshot.alphaRate,
+				color.g * snapshot.alphaRate,
+				color.b * snapshot.alphaRate
+			)
 			halo.Add(entities, haloColor, 1, 1, 1, true, true)
 		end
+	end
+end
+
+function sixthsense:DrawHalos()
+	for _, snapshot in ipairs(self.snapshots) do
+		self:DrawSnapshotHalos(snapshot)
 	end
 end
 

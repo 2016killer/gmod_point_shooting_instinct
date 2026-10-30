@@ -17,6 +17,7 @@ if CLIENT then
 					ps_sixthsense_ent_limit_weapons = '30',
 					ps_sixthsense_ent_limit_scripted = '30',
 					ps_sixthsense_ent_limit_other = '30',
+					ps_sixthsense_cooldown = '1',
 					ps_sixthsense_color_dangerous = '255,255,255',
 					ps_sixthsense_color_scripted = '255,255,255',
 					ps_sixthsense_color_other = '255,255,255',
@@ -41,6 +42,7 @@ if CLIENT then
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_cost'), 'ps_sixthsense_cost', 0, 1, 2)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_duration'), 'ps_sixthsense_duration', 0, 5, 1)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_expand_time'), 'ps_sixthsense_expand_time', 0.1, 5, 2)
+				panel:NumSlider(language.GetPhrase('#ps.sixthsense_cooldown'), 'ps_sixthsense_cooldown', 0, 5, 2)
 
 				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.filter_behavior'))
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_players'), 'ps_sixthsense_scan_players')
