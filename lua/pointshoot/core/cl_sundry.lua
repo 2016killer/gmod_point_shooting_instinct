@@ -62,11 +62,11 @@ end
 
 function pointshoot:EnableDrawPowerTick(duration)
     local endtime = CurTime() + duration
-    hook.Add('HUDPaint', 'pointshoot.drawpower', function() self:DrawPowerTick(endtime, duration) end)
+    hook.Add('DrawOverlay', 'pointshoot.drawpower', function() self:DrawPowerTick(endtime, duration) end)
 end
 
 function pointshoot:RemoveDrawPowerTick()
-    hook.Remove('HUDPaint', 'pointshoot.drawpower')
+    hook.Remove('DrawOverlay', 'pointshoot.drawpower')
 end
 
 hook.Add('EntityNetworkedVarChanged', 'pointshoot.power.change', function(ent, name, oldval, newval)
