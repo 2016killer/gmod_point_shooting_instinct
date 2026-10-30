@@ -22,7 +22,7 @@ if CLIENT then
 					ps_sixthsense_color_scripted = '255,255,255',
 					ps_sixthsense_color_other = '255,255,255',
 					ps_sixthsense_duration = '1',
-					ps_sixthsense_expand_time = '1',
+					ps_sixthsense_expand_time = '2',
 					ps_sixthsense_scan_players = '1',
 					ps_sixthsense_scan_npcs = '1',
 					ps_sixthsense_scan_grenades = '1',
