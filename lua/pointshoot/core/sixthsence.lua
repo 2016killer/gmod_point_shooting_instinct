@@ -110,36 +110,15 @@ concommand.Add('sixthsense', function(ply)
 end)
 
 concommand.Add('sixthsense_debug_showentclass', function(ply)
-	-- TODO: 用findSphere获取2000单位范围实体，然后用
-	-- debugoverlay.Text(origin, text, lifetime, false)
+	local origin = ply:GetPos()
+
+	for _, ent in ipairs(ents.FindInSphere(origin, 2000)) do
+		if IsValid(ent) then
+			debugoverlay.Text(ent:GetPos() + Vector(0, 0, 16), ent:GetClass(), 5, false)
+		end
+	end
 end)
 
-
-local sixthsenseTimer = 'pointshoot.sixthsense.hold'
-concommand.Add('+sixthsense', function()
-	timer.Remove(sixthsenseTimer)
-	RunConsoleCommand('sixthsense')
-	timer.Create(sixthsenseTimer, 0.1, 0, function()
-		local ply = LocalPlayer()
-		if not IsValid(ply) or not ply:Alive() then
-			return
-		end
-
-		local curpower = ply:GetNW2Float('psnw_power', 1)
-		local powercost = GetConVar('ps_sixthsense_cost'):GetFloat()
-		if curpower < powercost then
-			return
-		end
-
-		if RealTime() >= sixthsense.nextUse then
-			RunConsoleCommand('sixthsense')
-		end
-	end)
-end)
-
-concommand.Add('-sixthsense', function()
-	timer.Remove(sixthsenseTimer)
-end)
 
 sixthsense.WhiteList = {
 	['combine_mine'] = 'grenades',
@@ -286,8 +265,13 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverr
 		curRange = 0,
 		alphaRate = 1,
 		groups = {},
+		filterGroups = {},
 		renderGroups = {},
 	}
+
+	for _, group in ipairs(filterGroupOrder) do
+		snapshot.filterGroups[group] = {}
+	end
 
 	for _, group in ipairs(haloGroupOrder) do
 		snapshot.groups[group] = {}
@@ -322,7 +306,8 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverr
 		table.insert(
 			candidates,
 			{
-				ent = IsValid(entOverride) and entOverride or ent, 
+				ent = IsValid(entOverride) and entOverride or ent,
+				sourceEnt = ent,
 				distanceSqr = (ent:GetPos() - snapshot.position):LengthSqr()
 			}
 		)
@@ -337,6 +322,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, filterOverr
 		local haloGroup = filterGroupToHaloGroup[group]
 		local limit = math.Clamp(groupLimitCVars[group]:GetInt(), 0, 1000)
 		for i = 1, math.min(limit, #candidates) do
+			table.insert(snapshot.filterGroups[group], candidates[i].sourceEnt)
 			table.insert(snapshot.groups[haloGroup], candidates[i].ent)
 		end
 	end
