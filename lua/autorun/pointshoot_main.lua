@@ -3,7 +3,7 @@ pointshoot.emptyfunc = function() end
 pointshoot.WhiteList = pointshoot.WhiteList or {}
 pointshoot.WhiteListBase = pointshoot.WhiteListBase or {}
 pointshoot.Marks = {}
-pointshoot.Version = '1.3.0'
+pointshoot.Version = '1.3.1'
 
 
 
