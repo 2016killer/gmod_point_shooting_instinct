@@ -19,15 +19,10 @@ CreateConVar('ps_sixthsense_scan_vehicles', '1', flags)
 CreateConVar('ps_sixthsense_scan_breakables', '1', flags)
 CreateConVar('ps_sixthsense_scan_weapons', '1', flags)
 CreateConVar('ps_sixthsense_scan_scripted', '1', flags)
-CreateConVar('ps_sixthsense_halo_simple', '1', flags)
 
 if SERVER then return end
 
-CreateClientConVar('ps_sixthsense_color_actors', '255,255,255', true, false, '')
-CreateClientConVar('ps_sixthsense_color_grenades', '255,255,255', true, false, '')
-CreateClientConVar('ps_sixthsense_color_vehicles', '255,255,255', true, false, '')
-CreateClientConVar('ps_sixthsense_color_breakables', '255,255,255', true, false, '')
-CreateClientConVar('ps_sixthsense_color_weapons', '255,255,255', true, false, '')
+CreateClientConVar('ps_sixthsense_color_dangerous', '255,255,255', true, false, '')
 CreateClientConVar('ps_sixthsense_color_scripted', '255,255,255', true, false, '')
 CreateClientConVar('ps_sixthsense_color_other', '255,255,255', true, false, '')
 
@@ -38,7 +33,6 @@ local scanVehicles = GetConVar('ps_sixthsense_scan_vehicles')
 local scanBreakables = GetConVar('ps_sixthsense_scan_breakables')
 local scanWeapons = GetConVar('ps_sixthsense_scan_weapons')
 local scanScripted = GetConVar('ps_sixthsense_scan_scripted')
-local haloSimple = GetConVar('ps_sixthsense_halo_simple')
 
 local groupLimitCVars = {
 	actors = GetConVar('ps_sixthsense_ent_limit_actors'),
@@ -51,11 +45,7 @@ local groupLimitCVars = {
 }
 
 local groupColorCVars = {
-	actors = GetConVar('ps_sixthsense_color_actors'),
-	grenades = GetConVar('ps_sixthsense_color_grenades'),
-	vehicles = GetConVar('ps_sixthsense_color_vehicles'),
-	breakables = GetConVar('ps_sixthsense_color_breakables'),
-	weapons = GetConVar('ps_sixthsense_color_weapons'),
+	dangerous = GetConVar('ps_sixthsense_color_dangerous'),
 	scripted = GetConVar('ps_sixthsense_color_scripted'),
 	other = GetConVar('ps_sixthsense_color_other'),
 }
@@ -149,7 +139,7 @@ sixthsense.BlackList = {
 	['mg_attachment'] = -1,
 }
 
-local haloGroupOrder = {
+local filterGroupOrder = {
 	'actors',
 	'grenades',
 	'vehicles',
@@ -158,10 +148,19 @@ local haloGroupOrder = {
 	'scripted',
 	'other',
 }
-local simpleHaloGroupOrder = {
-	'actors',
+local haloGroupOrder = {
+	'dangerous',
 	'scripted',
 	'other',
+}
+local filterGroupToHaloGroup = {
+	actors = 'dangerous',
+	grenades = 'dangerous',
+	vehicles = 'other',
+	breakables = 'other',
+	weapons = 'other',
+	scripted = 'scripted',
+	other = 'other',
 }
 local haloGroups = {}
 for _, group in ipairs(haloGroupOrder) do
@@ -258,7 +257,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, _limitent, 
 	self.durationAlpha = ClampAbs(durationAlpha or 2, 0.1, 10)
 
 	self.entqueue = {}
-	for _, group in ipairs(haloGroupOrder) do
+	for _, group in ipairs(filterGroupOrder) do
 		self.entqueue[group] = {}
 	end
 
@@ -268,7 +267,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, _limitent, 
 	
 	local filter = filterOverride or self.Filter
 	local groupCandidates = {}
-	for _, group in ipairs(haloGroupOrder) do
+	for _, group in ipairs(filterGroupOrder) do
 		groupCandidates[group] = {}
 	end
 
@@ -294,7 +293,7 @@ function sixthsense:Start(ply, targetRange, duration, durationAlpha, _limitent, 
 		)
 	end
 
-	for _, group in ipairs(haloGroupOrder) do
+	for _, group in ipairs(filterGroupOrder) do
 		local candidates = groupCandidates[group]
 		table.sort(candidates, function(a, b)
 			return a.distanceSqr < b.distanceSqr
@@ -416,7 +415,6 @@ function sixthsense:DrawHalos()
 
 	local plypos = LocalPlayer():GetPos()
 	local maxDistSqr = self.curRange * self.curRange + 40000
-	local simpleGrouping = haloSimple:GetBool()
 
 	for _, group in ipairs(haloGroupOrder) do
 		local entities = haloGroups[group]
@@ -425,8 +423,9 @@ function sixthsense:DrawHalos()
 		end
 	end
 
-	for _, group in ipairs(haloGroupOrder) do
-		for _, ent in ipairs(self.entqueue[group]) do
+	for _, filterGroup in ipairs(filterGroupOrder) do
+		local haloGroup = filterGroupToHaloGroup[filterGroup]
+		for _, ent in ipairs(self.entqueue[filterGroup]) do
 			if IsValid(ent) and plypos:DistToSqr(ent:GetPos()) <= maxDistSqr then
 				if ent:IsNPC() or ent:IsNextBot() or ent:IsPlayer() then
 					if not ent:Alive() then
@@ -434,25 +433,13 @@ function sixthsense:DrawHalos()
 					end
 				end
 
-				local targetGroup = group
-				if simpleGrouping then
-					if group == 'actors' or group == 'grenades' then
-						targetGroup = 'actors'
-					elseif group == 'scripted' then
-						targetGroup = 'scripted'
-					else
-						targetGroup = 'other'
-					end
-				end
-
-				haloGroups[targetGroup][#haloGroups[targetGroup] + 1] = ent
+				haloGroups[haloGroup][#haloGroups[haloGroup] + 1] = ent
 			end
 		end
 	end
 
 	local alpha = math.Clamp(self.alphaRate or 0, 0, 1)
-	local drawGroupOrder = simpleGrouping and simpleHaloGroupOrder or haloGroupOrder
-	for _, group in ipairs(drawGroupOrder) do
+	for _, group in ipairs(haloGroupOrder) do
 		local entities = haloGroups[group]
 		if #entities > 0 then
 			local color = ParseColor(groupColorCVars[group]:GetString())

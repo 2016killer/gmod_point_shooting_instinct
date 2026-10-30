@@ -17,11 +17,7 @@ if CLIENT then
 					ps_sixthsense_ent_limit_weapons = '30',
 					ps_sixthsense_ent_limit_scripted = '30',
 					ps_sixthsense_ent_limit_other = '30',
-					ps_sixthsense_color_actors = '255,255,255',
-					ps_sixthsense_color_grenades = '255,255,255',
-					ps_sixthsense_color_vehicles = '255,255,255',
-					ps_sixthsense_color_breakables = '255,255,255',
-					ps_sixthsense_color_weapons = '255,255,255',
+					ps_sixthsense_color_dangerous = '255,255,255',
 					ps_sixthsense_color_scripted = '255,255,255',
 					ps_sixthsense_color_other = '255,255,255',
 					ps_sixthsense_duration = '1',
@@ -33,7 +29,6 @@ if CLIENT then
 					ps_sixthsense_scan_breakables = '1',
 					ps_sixthsense_scan_weapons = '1',
 					ps_sixthsense_scan_scripted = '1',
-					ps_sixthsense_halo_simple = '1',
 				}
 
 				local ctrl = vgui.Create('ControlPresets', panel)
@@ -56,10 +51,6 @@ if CLIENT then
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_weapons'), 'ps_sixthsense_scan_weapons')
 				panel:CheckBox(language.GetPhrase('#ps.sixthsense_scan_scripted'), 'ps_sixthsense_scan_scripted')
 
-				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.halo_options'))
-				panel:CheckBox(language.GetPhrase('#ps.sixthsense_halo_simple'), 'ps_sixthsense_halo_simple')
-				panel:Help(language.GetPhrase('#ps.sixthsense_halo_simple.help'))
-
 				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.entity_limit'))
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_actors'), 'ps_sixthsense_ent_limit_actors', 0, 60, 0)
 				panel:NumSlider(language.GetPhrase('#ps.sixthsense_ent_limit_grenades'), 'ps_sixthsense_ent_limit_grenades', 0, 60, 0)
@@ -71,11 +62,7 @@ if CLIENT then
 
 				panel:ControlHelp(language.GetPhrase('#ps.sixthsense.color_options'))
 				local colorOptions = {
-					{ label = '#ps.sixthsense_color_actors', cvar = 'ps_sixthsense_color_actors' },
-					{ label = '#ps.sixthsense_color_grenades', cvar = 'ps_sixthsense_color_grenades' },
-					{ label = '#ps.sixthsense_color_vehicles', cvar = 'ps_sixthsense_color_vehicles' },
-					{ label = '#ps.sixthsense_color_breakables', cvar = 'ps_sixthsense_color_breakables' },
-					{ label = '#ps.sixthsense_color_weapons', cvar = 'ps_sixthsense_color_weapons' },
+					{ label = '#ps.sixthsense_color_dangerous', cvar = 'ps_sixthsense_color_dangerous' },
 					{ label = '#ps.sixthsense_color_scripted', cvar = 'ps_sixthsense_color_scripted' },
 					{ label = '#ps.sixthsense_color_other', cvar = 'ps_sixthsense_color_other' },
 				}
